@@ -1097,6 +1097,20 @@
             </div>
         </div>
 
+        <!-- Autoplay Toggle -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-play-circle"></i> Playback
+            </h4>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white font-bold">Enable Autoplay</span>
+                    <input type="checkbox" id="enableAutoplay" class="toggle-checkbox">
+                </label>
+                <p class="text-white/60 text-[10px] px-2">Stream will start playing automatically when you open the page</p>
+            </div>
+        </div>
+
         <!-- Individual Feature Toggles (shown when mobile features enabled) -->
         <div id="featureToggles" class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4 hidden">
             <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
@@ -1758,6 +1772,22 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Get Our App Section -->
+        <div class="pt-12 pb-8 text-center border-b border-white/10">
+            <h4 class="text-yellow-500 font-black text-sm uppercase tracking-widest mb-6">Get Our App</h4>
+            <div class="flex flex-wrap justify-center items-center gap-6">
+                <!-- Android Download -->
+                <a href="android.apk" download class="flex items-center gap-3 bg-white/10 hover:bg-white/20 px-6 py-3 rounded-lg transition-all hover:scale-105 backdrop-blur-sm">
+                    <i class="fab fa-android text-3xl text-green-400"></i>
+                    <div class="text-left">
+                        <div class="text-xs text-white/60">Download for</div>
+                        <div class="text-sm font-bold text-white">Android</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        
         <div class="pt-12 text-center">
             <p class="text-[10px] text-white/20 uppercase tracking-[0.5em] font-bold">Documented and Authorized for Digital Propagation</p>
             <p id="adminTrigger" class="text-[10px] text-yellow-500/50 font-bold mt-2 italic cursor-pointer hover:text-yellow-500 hover:underline transition-all" title="Click to open Admin Panel">Official Information Hub of the National Academic Broadcasting Station &copy; 2026</p>
@@ -4076,6 +4106,44 @@
                 const volume = e.target.value / 100;
                 audio.volume = volume;
                 volumeValue.textContent = e.target.value;
+            });
+        }
+
+        // ===== AUTOPLAY CONTROL =====
+        const enableAutoplayCheckbox = document.getElementById('enableAutoplay');
+        
+        // Load saved autoplay preference
+        const savedAutoplay = localStorage.getItem('nabs-autoplay');
+        if (savedAutoplay === 'true') {
+            enableAutoplayCheckbox.checked = true;
+            // Try to autoplay on page load
+            if (audio) {
+                audio.play().catch(err => {
+                    console.log('Autoplay blocked by browser:', err);
+                    // Browser blocked autoplay - user will need to click play manually
+                });
+            }
+        }
+        
+        // Save autoplay preference when changed
+        if (enableAutoplayCheckbox) {
+            enableAutoplayCheckbox.addEventListener('change', (e) => {
+                const autoplayEnabled = e.target.checked;
+                localStorage.setItem('nabs-autoplay', autoplayEnabled.toString());
+                
+                if (autoplayEnabled) {
+                    showSwipeIndicator?.('▶️ Autoplay enabled') || alert('Autoplay enabled');
+                    // Start playing if currently stopped
+                    if (audio && audio.paused) {
+                        audio.play().catch(err => {
+                            console.log('Play failed:', err);
+                        });
+                    }
+                } else {
+                    showSwipeIndicator?.('⏸️ Autoplay disabled') || alert('Autoplay disabled');
+                }
+                
+                if (navigator.vibrate) navigator.vibrate(50);
             });
         }
 
