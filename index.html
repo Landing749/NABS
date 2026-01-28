@@ -14,11 +14,6 @@
     <meta name="apple-mobile-web-app-title" content="NABS Radio">
     <link rel="manifest" href="manifest.json">
     
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-    
     <!-- App Icons -->
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
@@ -341,7 +336,6 @@
             z-index: 9997;
             box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
             overflow-y: auto;
-            overflow-x: hidden;
         }
 
         .quick-settings.active {
@@ -350,13 +344,8 @@
 
         @media (max-width: 768px) {
             .quick-settings {
-                width: 100vw;
-                max-width: 100%;
-                right: -100vw;
-                padding: 15px;
-            }
-            .quick-settings.active {
-                right: 0;
+                width: 100%;
+                right: -100%;
             }
             .sleep-timer-badge {
                 top: 70px;
@@ -406,7 +395,6 @@
             left: 0;
             right: 0;
             height: 60vh;
-            max-height: 60vh;
             background: rgba(0, 31, 63, 0.98);
             backdrop-filter: blur(20px);
             border-radius: 30px 30px 0 0;
@@ -421,22 +409,9 @@
         }
 
         .history-list {
-            height: calc(100% - 120px);
+            height: calc(100% - 60px);
             overflow-y: auto;
-            overflow-x: hidden;
             padding: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .history-panel {
-                height: 70vh;
-                max-height: 70vh;
-                border-radius: 20px 20px 0 0;
-            }
-            .history-list {
-                height: calc(100% - 110px);
-                padding: 15px;
-            }
         }
 
         .history-item {
@@ -733,22 +708,6 @@
             background-color: var(--nabs-off-white);
             color: var(--nabs-slate);
             scroll-behavior: smooth;
-            /* Prevent horizontal scroll */
-            overflow-x: hidden;
-            width: 100%;
-            position: relative;
-        }
-
-        /* Prevent body overflow when modals open */
-        body.modal-open {
-            overflow: hidden;
-            position: fixed;
-            width: 100%;
-        }
-
-        /* Container to prevent horizontal overflow */
-        * {
-            max-width: 100%;
         }
 
         .serif-title { font-family: 'Cinzel', serif; }
@@ -896,8 +855,7 @@
             z-index: 9999;
             align-items: center;
             justify-content: center;
-            padding: 10px;
-            overflow-y: auto;
+            padding: 20px;
         }
         .admin-modal.active {
             display: flex;
@@ -906,26 +864,18 @@
             background: white;
             border-radius: 16px;
             max-width: 800px;
-            width: 100%;
+            width: 90%;
             max-height: 90vh;
             overflow-y: auto;
-            overflow-x: hidden;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            margin: auto;
         }
 
         /* Mobile optimizations for admin panel */
         @media (max-width: 768px) {
-            .admin-modal {
-                padding: 5px;
-                align-items: flex-start;
-            }
             .admin-panel {
-                width: 100%;
-                max-width: 100%;
-                max-height: 100vh;
-                border-radius: 0;
-                margin: 0;
+                width: 95%;
+                max-height: 95vh;
+                border-radius: 12px;
             }
             .admin-panel > div:first-child {
                 padding: 16px !important;
@@ -990,8 +940,7 @@
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
-            padding: 10px;
-            overflow-y: auto;
+            padding: 20px;
         }
         .share-modal.active {
             display: flex;
@@ -1000,17 +949,14 @@
             background: white;
             border-radius: 24px;
             max-width: 600px;
-            width: 100%;
+            width: 90%;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             max-height: 90vh;
             overflow-y: auto;
-            overflow-x: hidden;
         }
         .share-canvas {
             width: 100%;
-            max-width: 100%;
-            height: auto;
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
@@ -1032,19 +978,6 @@
         .twitter-btn { background: #1DA1F2; }
         .facebook-btn { background: #4267B2; }
         .whatsapp-btn { background: #25D366; }
-
-        /* Mobile optimizations for share modal */
-        @media (max-width: 768px) {
-            .share-modal {
-                padding: 5px;
-                align-items: flex-start;
-            }
-            .share-panel {
-                width: 100%;
-                max-width: 100%;
-                border-radius: 16px;
-                max-height: 100vh;
-            }
 
         /* Mobile optimizations for share modal */
         @media (max-width: 768px) {
@@ -1075,66 +1008,6 @@
             background: linear-gradient(135deg, rgba(197,160,89,0.1), rgba(0,31,63,0.05));
             border: 2px solid var(--nabs-gold);
         }
-
-
-
-        /* Keyboard Shortcuts Helper */
-        .keyboard-shortcuts {
-            position: fixed !important;
-            bottom: 20px !important;
-            left: 20px !important;
-            top: auto !important;
-            right: auto !important;
-            background: rgba(0, 31, 63, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 12px;
-            z-index: 50;
-            color: white;
-            font-size: 11px;
-            max-width: 200px;
-            display: none;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-
-        .keyboard-shortcuts.show {
-            display: block;
-            animation: slideInLeft 0.3s;
-        }
-
-        @keyframes slideInLeft {
-            from { transform: translateX(-100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .keyboard-shortcuts h4 {
-            color: #c5a059;
-            font-weight: bold;
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-
-        .keyboard-shortcuts .shortcut {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-            padding: 3px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .keyboard-shortcuts kbd {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .keyboard-shortcuts {
-                display: none !important;
-            }
-        }
     </style>
 </head>
 <body class="antialiased">
@@ -1143,35 +1016,6 @@
     <div class="weather-indicator" id="weatherIndicator">
         <i class="fas fa-cloud weather-icon" id="weatherIcon"></i>
         <span id="weatherText">Loading weather...</span>
-    </div>
-
-    <!-- Keyboard Shortcuts Helper -->
-    <div class="keyboard-shortcuts" id="keyboardShortcuts" style="position: fixed !important; bottom: 20px !important; left: 20px !important; top: auto !important; right: auto !important;">
-        <h4>⌨️ Keyboard Shortcuts</h4>
-        <div class="shortcut">
-            <span>Play/Pause</span>
-            <kbd>Space</kbd>
-        </div>
-        <div class="shortcut">
-            <span>Volume Up</span>
-            <kbd>↑</kbd>
-        </div>
-        <div class="shortcut">
-            <span>Volume Down</span>
-            <kbd>↓</kbd>
-        </div>
-        <div class="shortcut">
-            <span>Favorite</span>
-            <kbd>F</kbd>
-        </div>
-        <div class="shortcut">
-            <span>Share</span>
-            <kbd>S</kbd>
-        </div>
-        <div class="shortcut">
-            <span>Help</span>
-            <kbd>?</kbd>
-        </div>
     </div>
 
     <!-- PWA Install Button -->
@@ -1396,6 +1240,129 @@
         <button class="fab" id="historyFab" title="View history" style="background: rgba(0,31,63,0.9);">
             <i class="fas fa-history"></i>
         </button>
+    </div>
+    <div class="quick-settings" id="quickSettings">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-white font-black text-xl">Quick Settings</h3>
+            <button id="closeQuickSettings" class="text-white hover:text-red-500 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Features Toggle -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-mobile-alt"></i> Mobile Features
+            </h4>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white font-bold">Enable Mobile Features</span>
+                    <input type="checkbox" id="enableMobileFeatures" class="toggle-checkbox">
+                </label>
+                <p class="text-white/60 text-[10px] px-2">Turn on shake, swipe, double-tap, and gyroscope features</p>
+            </div>
+        </div>
+
+        <!-- Individual Feature Toggles (shown when mobile features enabled) -->
+        <div id="featureToggles" class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4 hidden">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-sliders-h"></i> Feature Controls
+            </h4>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-hand-sparkles mr-2"></i>Shake to Show Info</span>
+                    <input type="checkbox" id="toggleShake" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-hand-pointer mr-2"></i>Swipe Gestures</span>
+                    <input type="checkbox" id="toggleSwipe" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-heart mr-2"></i>Double Tap to Like</span>
+                    <input type="checkbox" id="toggleDoubleTap" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-compass mr-2"></i>Gyroscope Parallax</span>
+                    <input type="checkbox" id="toggleGyro" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-gamepad mr-2"></i>Haptic Feedback</span>
+                    <input type="checkbox" id="toggleHaptic" class="toggle-checkbox" checked>
+                </label>
+            </div>
+        </div>
+
+        <!-- Sleep Timer -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-moon"></i> Sleep Timer
+            </h4>
+            <div class="grid grid-cols-3 gap-2 mb-3">
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="15">15m</button>
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="30">30m</button>
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="60">1h</button>
+            </div>
+            <button id="cancelSleepTimer" class="w-full px-3 py-2 bg-red-600/80 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition-all hidden">
+                <i class="fas fa-times mr-1"></i> Cancel Timer
+            </button>
+        </div>
+
+        <!-- Volume Control -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-volume-up"></i> Volume
+            </h4>
+            <input type="range" id="volumeSlider" min="0" max="100" value="70" class="w-full">
+            <p class="text-white text-xs text-center mt-2"><span id="volumeValue">70</span>%</p>
+        </div>
+
+        <!-- Audio Quality -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-signal"></i> Audio Quality
+            </h4>
+            <div class="space-y-2">
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="high" checked class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">High Quality</p>
+                        <p class="text-white/60 text-[10px]">Best sound, more data</p>
+                    </div>
+                </label>
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="medium" class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">Medium Quality</p>
+                        <p class="text-white/60 text-[10px]">Balanced</p>
+                    </div>
+                </label>
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="low" class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">Low Quality</p>
+                        <p class="text-white/60 text-[10px]">Save data</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-bolt"></i> Quick Actions
+            </h4>
+            <div class="space-y-2">
+                <button id="clearHistoryBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-trash mr-2"></i> Clear Listening History
+                </button>
+                <button id="refreshStationBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-sync mr-2"></i> Refresh Station
+                </button>
+                <button id="downloadModeBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-download mr-2"></i> Enable Offline Mode
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Seasonal Overlay -->
@@ -1903,7 +1870,11 @@
                     </h3>
 
                     <!-- Station Statistics -->
-                    <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="bg-green-50 p-3 rounded-lg text-center border border-green-200">
+                            <p class="text-2xl font-black text-green-600" id="listenerCount">0</p>
+                            <p class="text-xs text-gray-600">Active Listeners</p>
+                        </div>
                         <div class="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
                             <p class="text-2xl font-black text-blue-600" id="totalPlays">0</p>
                             <p class="text-xs text-gray-600">Total Plays</p>
@@ -2489,6 +2460,7 @@
         const syncDelayValue = document.getElementById('syncDelayValue');
         
         // Stats
+        const listenerCountEl = document.getElementById('listenerCount');
         const totalPlaysEl = document.getElementById('totalPlays');
         const uptimeEl = document.getElementById('uptime');
 
@@ -2520,6 +2492,26 @@
         }
 
         registerListener();
+
+        // Count active listeners (cleanup old ones)
+        listenersRef.on('value', (snapshot) => {
+            const listeners = snapshot.val() || {};
+            const now = Date.now();
+            let activeCount = 0;
+            
+            Object.entries(listeners).forEach(([id, data]) => {
+                if (now - (data.lastSeen || 0) < 60000) { // Active in last 60 seconds
+                    activeCount++;
+                } else {
+                    // Cleanup stale listeners
+                    listenersRef.child(id).remove();
+                }
+            });
+            
+            if (listenerCountEl) {
+                listenerCountEl.textContent = activeCount;
+            }
+        });
 
         // Listen for settings
         settingsRef.on('value', (snapshot) => {
@@ -3091,7 +3083,7 @@
                 console.log('Admin panel trigger clicked');
                 adminModal.classList.add('active');
                 // Prevent body scroll when modal open
-                document.body.classList.add('modal-open');
+                document.body.style.overflow = 'hidden';
             });
         } else {
             console.error('Cannot attach admin trigger - elements missing');
@@ -3101,7 +3093,7 @@
             closeAdmin.addEventListener('click', () => {
                 adminModal.classList.remove('active');
                 // Restore body scroll
-                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
             });
         }
 
@@ -3110,7 +3102,7 @@
                 if (e.target === adminModal) {
                     adminModal.classList.remove('active');
                     // Restore body scroll
-                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
                 }
             });
         }
@@ -3357,7 +3349,7 @@
                 
                 shareModal.classList.add('active');
                 // Prevent body scroll when modal open
-                document.body.classList.add('modal-open');
+                document.body.style.overflow = 'hidden';
                 
                 // Haptic feedback
                 if (navigator.vibrate) {
@@ -3370,7 +3362,7 @@
             closeShare.addEventListener('click', () => {
                 shareModal.classList.remove('active');
                 // Restore body scroll
-                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
             });
         }
 
@@ -3379,7 +3371,7 @@
                 if (e.target === shareModal) {
                     shareModal.classList.remove('active');
                     // Restore body scroll
-                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
                 }
             });
         }
@@ -4047,7 +4039,7 @@
             quickSettingsBtn.addEventListener('click', () => {
                 quickSettings?.classList.add('active');
                 // Prevent body scroll when settings open
-                document.body.classList.add('modal-open');
+                document.body.style.overflow = 'hidden';
                 if (navigator.vibrate) navigator.vibrate(50);
             });
         }
@@ -4056,7 +4048,7 @@
             closeQuickSettings.addEventListener('click', () => {
                 quickSettings?.classList.remove('active');
                 // Restore body scroll
-                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
             });
         }
 
@@ -4066,7 +4058,7 @@
                 if (e.target === quickSettings) {
                     quickSettings.classList.remove('active');
                     // Restore body scroll
-                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
                 }
             });
         }
@@ -4293,7 +4285,7 @@
         document.getElementById('historyFab')?.addEventListener('click', () => {
             document.getElementById('historyPanel')?.classList.add('active');
             // Prevent body scroll when panel open
-            document.body.classList.add('modal-open');
+            document.body.style.overflow = 'hidden';
             // Show history tab by default
             historyTab?.classList.remove('bg-white/10');
             historyTab?.classList.add('bg-white/20');
@@ -4308,7 +4300,7 @@
         document.getElementById('closeHistory')?.addEventListener('click', () => {
             document.getElementById('historyPanel')?.classList.remove('active');
             // Restore body scroll
-            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
         });
 
         // Favorite current song - now opens favorites tab
@@ -4330,7 +4322,7 @@
                 setTimeout(() => {
                     document.getElementById('historyPanel')?.classList.add('active');
                     // Prevent body scroll when panel open
-                    document.body.classList.add('modal-open');
+                    document.body.style.overflow = 'hidden';
                     // Switch to favorites tab
                     favoritesTab?.classList.remove('bg-white/10');
                     favoritesTab?.classList.add('bg-white/20');
@@ -4427,200 +4419,6 @@
             if (badge) badge.classList.remove('active');
             if (cancelBtn) cancelBtn.classList.add('hidden');
         }
-
-        // ===== KEYBOARD SHORTCUTS =====
-        const keyboardShortcuts = document.getElementById('keyboardShortcuts');
-        let shortcutsVisible = false;
-
-        document.addEventListener('keydown', (e) => {
-            // Don't trigger if typing in input
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-            const audio = document.getElementById('mainAudio');
-
-            switch(e.key.toLowerCase()) {
-                case ' ': // Space - Play/Pause
-                    e.preventDefault();
-                    if (audio.paused) {
-                        audio.play();
-                    } else {
-                        audio.pause();
-                    }
-                    break;
-
-                case 'arrowup': // Arrow Up - Volume Up
-                    e.preventDefault();
-                    audio.volume = Math.min(1, audio.volume + 0.1);
-                    const volumeSlider = document.getElementById('volumeSlider');
-                    if (volumeSlider) {
-                        volumeSlider.value = audio.volume * 100;
-                        document.getElementById('volumeValue').textContent = Math.round(audio.volume * 100);
-                    }
-                    showSwipeIndicator?.(`🔊 Volume: ${Math.round(audio.volume * 100)}%`);
-                    break;
-
-                case 'arrowdown': // Arrow Down - Volume Down
-                    e.preventDefault();
-                    audio.volume = Math.max(0, audio.volume - 0.1);
-                    const volumeSlider2 = document.getElementById('volumeSlider');
-                    if (volumeSlider2) {
-                        volumeSlider2.value = audio.volume * 100;
-                        document.getElementById('volumeValue').textContent = Math.round(audio.volume * 100);
-                    }
-                    showSwipeIndicator?.(`🔉 Volume: ${Math.round(audio.volume * 100)}%`);
-                    break;
-
-                case 'f': // F - Favorite
-                    e.preventDefault();
-                    document.getElementById('favoriteFab')?.click();
-                    break;
-
-                case 's': // S - Share
-                    e.preventDefault();
-                    document.getElementById('shareButton')?.click();
-                    break;
-
-                case 'h': // H - History
-                    e.preventDefault();
-                    document.getElementById('historyFab')?.click();
-                    break;
-
-                case '?': // ? - Show keyboard shortcuts
-                    e.preventDefault();
-                    shortcutsVisible = !shortcutsVisible;
-                    if (shortcutsVisible) {
-                        keyboardShortcuts.classList.add('show');
-                    } else {
-                        keyboardShortcuts.classList.remove('show');
-                    }
-                    break;
-            }
-        });
-
-        // ===== NOW PLAYING NOTIFICATIONS (Native API) =====
-        let lastNotifiedSong = '';
-        let notificationEnabled = localStorage.getItem('nabs-notifications-enabled') === 'true';
-
-        function showNowPlayingNotification(title, artist) {
-            if ('Notification' in window && Notification.permission === 'granted' && notificationEnabled) {
-                const songKey = `${title}-${artist}`;
-                
-                // Don't notify for same song twice in a row
-                if (songKey === lastNotifiedSong) return;
-                lastNotifiedSong = songKey;
-
-                // Create notification with native API
-                const notification = new Notification('🎵 Now Playing on NABS Radio', {
-                    body: `${title}\nby ${artist}`,
-                    icon: 'icon-192.png',
-                    badge: 'icon-192.png',
-                    tag: 'now-playing',
-                    renotify: false,
-                    silent: true,
-                    requireInteraction: false,
-                    vibrate: [200, 100, 200]
-                });
-
-                // Auto-close after 5 seconds
-                setTimeout(() => notification.close(), 5000);
-
-                // Click notification to focus window
-                notification.onclick = () => {
-                    window.focus();
-                    notification.close();
-                };
-            }
-        }
-
-        // Add notification permission button to quick settings
-        const notifBtn = document.createElement('button');
-        notifBtn.id = 'enableNotifications';
-        notifBtn.className = 'w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left';
-        
-        // Check current permission status
-        if ('Notification' in window) {
-            if (Notification.permission === 'granted' && notificationEnabled) {
-                notifBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Notifications Enabled';
-                notifBtn.style.background = 'rgba(74, 222, 128, 0.2)';
-            } else if (Notification.permission === 'granted') {
-                notifBtn.innerHTML = '<i class="fas fa-bell-slash mr-2"></i> Enable Notifications';
-            } else if (Notification.permission === 'denied') {
-                notifBtn.innerHTML = '<i class="fas fa-ban mr-2"></i> Notifications Blocked';
-                notifBtn.disabled = true;
-                notifBtn.style.opacity = '0.5';
-            } else {
-                notifBtn.innerHTML = '<i class="fas fa-bell mr-2"></i> Enable Notifications';
-            }
-        } else {
-            notifBtn.innerHTML = '<i class="fas fa-times mr-2"></i> Not Supported';
-            notifBtn.disabled = true;
-        }
-
-        notifBtn.addEventListener('click', () => {
-            if ('Notification' in window) {
-                if (Notification.permission === 'granted') {
-                    // Toggle on/off
-                    notificationEnabled = !notificationEnabled;
-                    localStorage.setItem('nabs-notifications-enabled', notificationEnabled);
-                    
-                    if (notificationEnabled) {
-                        notifBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Notifications Enabled';
-                        notifBtn.style.background = 'rgba(74, 222, 128, 0.2)';
-                        showSwipeIndicator?.('🔔 Notifications enabled!') || alert('Notifications enabled!');
-                        
-                        // Show test notification
-                        showNowPlayingNotification('Test', 'NABS Radio');
-                    } else {
-                        notifBtn.innerHTML = '<i class="fas fa-bell-slash mr-2"></i> Enable Notifications';
-                        notifBtn.style.background = 'rgba(255, 255, 255, 0.2)';
-                        showSwipeIndicator?.('🔕 Notifications disabled') || alert('Notifications disabled');
-                    }
-                } else {
-                    // Request permission
-                    Notification.requestPermission().then(permission => {
-                        if (permission === 'granted') {
-                            notificationEnabled = true;
-                            localStorage.setItem('nabs-notifications-enabled', 'true');
-                            notifBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Notifications Enabled';
-                            notifBtn.style.background = 'rgba(74, 222, 128, 0.2)';
-                            showSwipeIndicator?.('🔔 Notifications enabled!') || alert('Notifications enabled!');
-                            
-                            // Show welcome notification
-                            showNowPlayingNotification('Welcome!', 'NABS Radio Notifications');
-                        } else if (permission === 'denied') {
-                            notifBtn.innerHTML = '<i class="fas fa-ban mr-2"></i> Notifications Blocked';
-                            notifBtn.disabled = true;
-                            notifBtn.style.opacity = '0.5';
-                            alert('Notifications blocked. Please enable in browser settings.');
-                        }
-                    });
-                }
-            }
-        });
-
-        // Add to quick actions
-        const downloadModeBtn = document.getElementById('downloadModeBtn');
-        if (downloadModeBtn?.parentElement) {
-            downloadModeBtn.parentElement.appendChild(notifBtn);
-        }
-
-        // Trigger notification when song changes
-        if (vinylTitle && vinylArtist) {
-            const notifObserver = new MutationObserver(() => {
-                const title = vinylTitle.textContent;
-                const artist = vinylArtist.textContent;
-                
-                if (title && artist && title !== '...' && title !== 'Loading...') {
-                    showNowPlayingNotification(title, artist);
-                }
-            });
-            
-            notifObserver.observe(vinylTitle, { childList: true, characterData: true, subtree: true });
-        }
-
-        console.log('✨ Exciting features loaded!');
-        console.log('📱 Notifications:', 'Notification' in window ? 'Supported' : 'Not supported');
-        console.log('🔔 Permission:', 'Notification' in window ? Notification.permission : 'N/A');
 
     </script>
 </body>
