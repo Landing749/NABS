@@ -738,11 +738,6 @@
             html {
                 height: -webkit-fill-available;
             }
-            
-            /* Force contain layout on all sections */
-            section, main, header, footer {
-                contain: layout style;
-            }
         }
 
         .mobile-fab:active {
@@ -934,11 +929,6 @@
         
         /* Prevent layout shifts when audio plays on mobile */
         @media (max-width: 768px) {
-            body.is-playing {
-                /* Lock layout when playing */
-                contain: layout;
-            }
-            
             /* Ensure all animations use GPU */
             .wave, .vinyl-record, .visualizer-bar {
                 transform: translateZ(0);
