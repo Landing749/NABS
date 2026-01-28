@@ -4,15 +4,429 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NABS | National Academic Broadcasting Station Official Portal</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="National Academic Broadcasting Station - Intellectual Integrity on 105.7 MHZ">
+    <meta name="theme-color" content="#001f3f">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NABS Radio">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- App Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lora:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Firebase SDK v7.24.0 from unpkg (more accessible) -->
+    <script src="https://unpkg.com/firebase@7.24.0/firebase-app.js"></script>
+    <script src="https://unpkg.com/firebase@7.24.0/firebase-database.js"></script>
+    
     <style>
         :root {
             --nabs-navy: #001f3f;
             --nabs-gold: #c5a059;
             --nabs-off-white: #fcfaf5;
             --nabs-slate: #2c3e50;
+        }
+
+        /* Time of Day Themes */
+        body.morning-theme {
+            --nabs-off-white: #fff5e6;
+            --nabs-navy: #1a3a52;
+            --nabs-gold: #f4a261;
+        }
+        
+        body.afternoon-theme {
+            --nabs-off-white: #fcfaf5;
+            --nabs-navy: #001f3f;
+            --nabs-gold: #c5a059;
+        }
+        
+        body.evening-theme {
+            --nabs-off-white: #f0e6d9;
+            --nabs-navy: #1e1e3f;
+            --nabs-gold: #d4a574;
+        }
+        
+        body.night-theme {
+            --nabs-off-white: #1a1a2e;
+            --nabs-navy: #0a0a14;
+            --nabs-gold: #ffd700;
+            --nabs-slate: #e0e0e0;
+        }
+        
+        body.night-theme {
+            color: #e0e0e0;
+        }
+        
+        body.night-theme header,
+        body.night-theme footer {
+            background: #0a0a14 !important;
+        }
+        
+        body.night-theme .bg-white {
+            background: #2a2a3e !important;
+            color: #e0e0e0;
+        }
+
+        /* Seasonal Overlays */
+        .season-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.3;
+        }
+
+        /* Spring - Floating petals */
+        .spring-petal {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #ffc0cb, #ffb6c1);
+            border-radius: 50% 0;
+            animation: fall 15s infinite linear;
+            opacity: 0.6;
+        }
+
+        @keyframes fall {
+            0% { 
+                transform: translateY(-10vh) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% { 
+                transform: translateY(110vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Summer - Sun rays */
+        .summer-ray {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(255, 215, 0, 0.2), transparent);
+            animation: shimmer 8s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Autumn - Falling leaves */
+        .autumn-leaf {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #d2691e, #8b4513);
+            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+            animation: leafFall 12s infinite linear;
+            opacity: 0.7;
+        }
+
+        @keyframes leafFall {
+            0% { 
+                transform: translateY(-10vh) rotate(0deg) translateX(0);
+                opacity: 0.8;
+            }
+            50% {
+                transform: translateY(50vh) rotate(180deg) translateX(50px);
+            }
+            100% { 
+                transform: translateY(110vh) rotate(360deg) translateX(0);
+                opacity: 0;
+            }
+        }
+
+        /* Winter - Snowflakes */
+        .winter-snow {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: snow 10s infinite linear;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes snow {
+            0% { 
+                transform: translateY(-10vh) translateX(0);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(110vh) translateX(100px);
+                opacity: 0.5;
+            }
+        }
+
+        /* Weather indicator */
+        .weather-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 40;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .weather-icon {
+            font-size: 20px;
+        }
+
+        /* Adjust for mobile */
+        @media (max-width: 768px) {
+            .weather-indicator {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 10px;
+            }
+            .weather-icon {
+                font-size: 16px;
+            }
+        }
+
+        /* ===== MOBILE EXCLUSIVE FEATURES ===== */
+        
+        /* Shake Animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+
+        .shake-active {
+            animation: shake 0.5s;
+        }
+
+        /* Haptic Feedback Visual */
+        .haptic-pulse {
+            animation: haptic-pulse 0.3s;
+        }
+
+        @keyframes haptic-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Swipe Indicator */
+        .swipe-indicator {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 20px;
+            font-size: 24px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 9999;
+        }
+
+        .swipe-indicator.show {
+            opacity: 1;
+        }
+
+        /* Double Tap Overlay */
+        .double-tap-heart {
+            position: fixed;
+            font-size: 100px;
+            color: #ff0000;
+            pointer-events: none;
+            opacity: 0;
+            z-index: 9998;
+            animation: heartPop 1s ease-out;
+        }
+
+        @keyframes heartPop {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translateY(-100px);
+            }
+        }
+
+        /* Mobile Control Panel */
+        .mobile-controls {
+            position: fixed;
+            bottom: -200px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 31, 63, 0.98), rgba(0, 31, 63, 0.95));
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            border-radius: 30px 30px 0 0;
+            transition: bottom 0.3s ease-out;
+            z-index: 100;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .mobile-controls.show {
+            bottom: 0;
+        }
+
+        /* Tilt Indicator */
+        .tilt-meter {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            width: 60px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 30px;
+            padding: 10px;
+            display: none;
+            z-index: 50;
+        }
+
+        .tilt-meter.active {
+            display: block;
+        }
+
+        .tilt-level {
+            width: 100%;
+            background: linear-gradient(to top, #00ff00, #ffff00, #ff0000);
+            border-radius: 20px;
+            transition: height 0.1s;
+        }
+
+        /* Gyroscope Parallax */
+        .parallax-layer {
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Long Press Ripple */
+        .long-press-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(197, 160, 89, 0.3);
+            animation: ripple 1s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            0% {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            100% {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
+        }
+
+        /* Battery Saver Mode */
+        body.battery-saver {
+            filter: grayscale(50%);
+        }
+
+        body.battery-saver .season-overlay,
+        body.battery-saver .wave,
+        body.battery-saver .vinyl-record {
+            animation-play-state: paused !important;
+        }
+
+        /* Screenshot Flash */
+        .screenshot-flash {
+            position: fixed;
+            inset: 0;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 99999;
+        }
+
+        .screenshot-flash.active {
+            animation: flash 0.3s;
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Mobile Floating Action Button */
+        .mobile-fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c5a059, #ffd700);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(197, 160, 89, 0.5);
+            z-index: 90;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-fab {
+                display: flex;
+            }
+        }
+
+        .mobile-fab:active {
+            transform: scale(0.9);
+        }
+
+        /* Fullscreen Button */
+        .fullscreen-toggle {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .fullscreen-toggle {
+                display: flex;
+            }
         }
 
         body {
@@ -138,9 +552,91 @@
         .is-playing .vinyl-record {
             animation-play-state: running;
         }
+
+        /* Audio Visualizer */
+        .visualizer-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 4px;
+            height: 120px;
+            padding: 20px;
+            background: linear-gradient(to bottom, rgba(0,31,63,0.1), transparent);
+            border-radius: 12px;
+        }
+        .visualizer-bar {
+            width: 8px;
+            background: linear-gradient(to top, var(--nabs-gold), #ffd700);
+            border-radius: 4px 4px 0 0;
+            transition: height 0.1s ease;
+            box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+        }
+
+        /* Admin Panel Modal */
+        .admin-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .admin-modal.active {
+            display: flex;
+        }
+        .admin-panel {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Request Form */
+        .request-section {
+            background: linear-gradient(135deg, rgba(197,160,89,0.1), rgba(0,31,63,0.05));
+            border: 2px solid var(--nabs-gold);
+        }
     </style>
 </head>
 <body class="antialiased">
+
+    <!-- Weather Indicator -->
+    <div class="weather-indicator" id="weatherIndicator">
+        <i class="fas fa-cloud weather-icon" id="weatherIcon"></i>
+        <span id="weatherText">Loading weather...</span>
+    </div>
+
+    <!-- PWA Install Button -->
+    <button id="installButton" style="display: none;" class="fixed bottom-6 right-6 z-50 bg-yellow-600 hover:bg-yellow-700 text-white font-black px-6 py-4 rounded-full shadow-2xl flex items-center gap-3 transition-all transform hover:scale-105">
+        <i class="fas fa-download text-xl"></i>
+        <span class="text-sm uppercase tracking-wider">Install App</span>
+    </button>
+
+    <!-- Mobile Exclusive UI -->
+    <div class="swipe-indicator" id="swipeIndicator"></div>
+    <div class="screenshot-flash" id="screenshotFlash"></div>
+    
+    <!-- Fullscreen Toggle (Mobile Only) -->
+    <button class="fullscreen-toggle" id="fullscreenToggle">
+        <i class="fas fa-expand"></i>
+    </button>
+
+    <!-- Tilt Meter (Mobile Only) -->
+    <div class="tilt-meter" id="tiltMeter">
+        <div class="tilt-level" id="tiltLevel" style="height: 50%;"></div>
+    </div>
+
+    <!-- Seasonal Overlay -->
+    <div class="season-overlay" id="seasonOverlay"></div>
+
+    <!-- Background Ambient Audio -->
+    <audio id="ambientAudio" loop style="display: none;">
+        <source id="ambientSource" src="" type="audio/mpeg">
+    </audio>
 
     <!-- Top Branding -->
     <header class="bg-[#001f3f] text-white pt-16 pb-20 px-6 relative overflow-hidden">
@@ -149,9 +645,9 @@
         </div>
         
         <div class="max-w-7xl mx-auto text-center relative z-10">
-            <div class="mb-6 inline-flex items-center gap-4 bg-red-950/40 border border-red-500 px-4 py-2 rounded-full">
-                <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                <span class="on-air-lamp text-red-500 text-[10px] font-black uppercase tracking-widest">Live: Transmission Active</span>
+            <div id="transmissionIndicator" class="mb-6 inline-flex items-center gap-4 bg-red-950/40 border border-red-500 px-4 py-2 rounded-full">
+                <span id="transmissionDot" class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                <span id="transmissionText" class="on-air-lamp text-red-500 text-[10px] font-black uppercase tracking-widest">Live: Transmission Active</span>
             </div>
             <div class="mb-8 block p-2 bg-white rounded-full shadow-2xl w-24 h-24 mx-auto overflow-hidden">
                 <img src="IMG_20260126_212546.png" alt="NABS Logo" class="w-full h-full object-contain" onerror="this.src='https://ui-avatars.com/api/?name=NABS&background=c5a059&color=fff&size=128'">
@@ -172,6 +668,7 @@
                 <a href="#leadership" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Leadership</a>
                 <a href="#anchors" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Anchors</a>
                 <a href="#acoustics" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Acoustics</a>
+                <a href="#requests" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Requests</a>
                 <a href="#technical" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Engineering</a>
                 <a href="#standards" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Standards</a>
                 <a href="#demographics" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Audience</a>
@@ -207,14 +704,14 @@
                     <div class="vinyl-label">
                         <div class="vinyl-spindle mb-2"></div>
                         <span class="text-[10px] font-black leading-none">NABS</span>
-                        <span class="text-[8px] font-bold text-navy-900 mt-1 uppercase italic">Multo</span>
-                        <span class="text-[6px] font-bold opacity-70 tracking-widest">CUP OF JOE</span>
+                        <span id="vinylArtist" class="text-[8px] font-bold text-navy-900 mt-1 uppercase italic">Loading...</span>
+                        <span id="vinylTitle" class="text-[6px] font-bold opacity-70 tracking-widest">...</span>
                     </div>
                 </div>
             </div>
             
             <!-- Audio Logic -->
-            <audio id="mainAudio" src="Multo (Live at The Cozy Cove) - Cup of Joe.mp3" preload="auto" loop></audio>
+            <audio id="mainAudio" src="" preload="auto" loop></audio>
 
             <div class="mt-12 text-center">
                 <div class="flex items-center justify-center gap-2 mb-2">
@@ -224,7 +721,29 @@
                     <button id="vinylPlay" class="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-[#001f3f] hover:bg-yellow-500 transition-all border border-gray-100"><i class="fas fa-play text-xl ml-1"></i></button>
                     <button id="vinylPause" class="w-16 h-16 rounded-full bg-[#001f3f] text-white shadow-xl flex items-center justify-center hover:bg-red-900 transition-all"><i class="fas fa-pause text-xl"></i></button>
                 </div>
-                <p class="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-60">Signature Selection: Multo - Cup of Joe</p>
+                <p id="nowPlayingText" class="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-60">Loading song...</p>
+                
+                <!-- Audio Visualizer -->
+                <div class="mt-8 visualizer-container">
+                    <div class="visualizer-bar" style="height: 20px;"></div>
+                    <div class="visualizer-bar" style="height: 35px;"></div>
+                    <div class="visualizer-bar" style="height: 50px;"></div>
+                    <div class="visualizer-bar" style="height: 45px;"></div>
+                    <div class="visualizer-bar" style="height: 65px;"></div>
+                    <div class="visualizer-bar" style="height: 80px;"></div>
+                    <div class="visualizer-bar" style="height: 70px;"></div>
+                    <div class="visualizer-bar" style="height: 55px;"></div>
+                    <div class="visualizer-bar" style="height: 60px;"></div>
+                    <div class="visualizer-bar" style="height: 45px;"></div>
+                    <div class="visualizer-bar" style="height: 30px;"></div>
+                    <div class="visualizer-bar" style="height: 40px;"></div>
+                    <div class="visualizer-bar" style="height: 55px;"></div>
+                    <div class="visualizer-bar" style="height: 70px;"></div>
+                    <div class="visualizer-bar" style="height: 60px;"></div>
+                    <div class="visualizer-bar" style="height: 45px;"></div>
+                    <div class="visualizer-bar" style="height: 30px;"></div>
+                    <div class="visualizer-bar" style="height: 25px;"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -324,6 +843,43 @@
                         <p class="text-[10px] text-yellow-500 font-bold mt-2 uppercase tracking-widest">Signal Purity Index: 98.4%</p>
                     </div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Music Request System -->
+    <section id="requests" class="py-24 px-6 max-w-4xl mx-auto">
+        <div class="request-section rounded-3xl p-12">
+            <div class="text-center mb-10">
+                <div class="inline-flex items-center gap-3 bg-yellow-900/20 border border-yellow-500/30 px-6 py-3 rounded-full mb-6">
+                    <i class="fas fa-music text-yellow-500"></i>
+                    <span class="text-[10px] font-black uppercase tracking-widest text-yellow-500">Under Consideration</span>
+                </div>
+                <h2 class="serif-title text-4xl mb-4">Song Request Portal</h2>
+                <p class="text-gray-600 text-sm italic">While our programming is carefully curated, we value listener input. Submit your requests and our content team will evaluate each suggestion for potential inclusion in future broadcasts.</p>
+            </div>
+
+            <div class="space-y-6 bg-white rounded-2xl p-8 shadow-inner">
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-gray-700 mb-2">Your Name</label>
+                    <input type="text" id="requestName" placeholder="Full Name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-500 focus:outline-none transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-gray-700 mb-2">Song Title</label>
+                    <input type="text" id="requestSong" placeholder="Song Title" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-500 focus:outline-none transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-gray-700 mb-2">Artist</label>
+                    <input type="text" id="requestArtist" placeholder="Artist Name" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-500 focus:outline-none transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-black uppercase tracking-widest text-gray-700 mb-2">Reason (Optional)</label>
+                    <textarea id="requestReason" placeholder="Why this song fits NABS programming?" rows="3" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-yellow-500 focus:outline-none transition-colors resize-none"></textarea>
+                </div>
+                <button id="submitRequest" class="w-full bg-[#001f3f] text-white py-4 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-yellow-600 transition-all shadow-lg">
+                    Submit for Review
+                </button>
+                <p id="requestMessage" class="text-center text-sm font-bold hidden"></p>
             </div>
         </div>
     </section>
@@ -453,12 +1009,6 @@
             <div class="col-span-2">
                 <h3 class="serif-title text-3xl mb-6">NABS</h3>
                 <p class="text-white/50 text-sm max-w-md leading-relaxed">The National Academic Broadcasting Station. Our frequency is a commitment to the intellectual advancement of the citizenry.</p>
-                
-                <!-- Download Action (ID added for removal on export) -->
-                <button id="downloadPortal" class="mt-8 flex items-center gap-3 bg-yellow-600/20 border border-yellow-600/30 px-6 py-3 rounded-full hover:bg-yellow-600 hover:text-navy-900 transition-all group">
-                    <i class="fas fa-file-download text-yellow-500 group-hover:text-navy-900"></i>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Download Portal Source</span>
-                </button>
             </div>
             <div>
                 <h4 class="text-yellow-500 font-black text-xs uppercase tracking-widest mb-6">Governance</h4>
@@ -481,590 +1031,260 @@
         </div>
         <div class="pt-12 text-center">
             <p class="text-[10px] text-white/20 uppercase tracking-[0.5em] font-bold">Documented and Authorized for Digital Propagation</p>
-            <p class="text-[10px] text-yellow-500/50 font-bold mt-2 italic">Official Information Hub of the National Academic Broadcasting Station &copy; 2026</p>
+            <p id="adminTrigger" class="text-[10px] text-yellow-500/50 font-bold mt-2 italic cursor-pointer hover:text-yellow-500 hover:underline transition-all" title="Click to open Admin Panel">Official Information Hub of the National Academic Broadcasting Station &copy; 2026 [Admin]</p>
         </div>
     </footer>
 
-    <script>
-        const playBtn = document.getElementById('vinylPlay');
-        const pauseBtn = document.getElementById('vinylPause');
-        const record = document.querySelector('.vinyl-record');
-        const audio = document.getElementById('mainAudio');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const signalContainer = document.getElementById('signalContainer');
-        const downloadBtn = document.getElementById('downloadPortal');
-
-        // Function to update visual states
-        function setPlayingState(isPlaying) {
-            if (isPlaying) {
-                record.style.animationPlayState = 'running';
-                statusIndicator.innerText = 'Status: ON AIR - TRANSMITTING';
-                statusIndicator.classList.remove('text-gray-400');
-                statusIndicator.classList.add('text-red-500');
-                signalContainer.classList.add('is-playing');
-                document.body.classList.add('is-playing');
-            } else {
-                record.style.animationPlayState = 'paused';
-                statusIndicator.innerText = 'Status: STANDBY';
-                statusIndicator.classList.remove('text-red-500');
-                statusIndicator.classList.add('text-gray-400');
-                signalContainer.classList.remove('is-playing');
-                document.body.classList.remove('is-playing');
-            }
-        }
-
-        pauseBtn.addEventListener('click', () => {
-            audio.pause();
-            setPlayingState(false);
-        });
-
-        playBtn.addEventListener('click', () => {
-            audio.play().then(() => {
-                setPlayingState(true);
-            }).catch(err => {
-                console.warn("Audio playback failed.", err);
-                setPlayingState(true); 
-            });
-        });
-
-        // Download Logic with Self-Removal
-        downloadBtn.addEventListener('click', () => {
-            // 1. Create a clone of the entire document
-            const clone = document.documentElement.cloneNode(true);
-            
-            // 2. Find and remove the download button from the clone
-            const cloneDownloadBtn = clone.querySelector('#downloadPortal');
-            if (cloneDownloadBtn) {
-                cloneDownloadBtn.remove();
-            }
-
-            // 3. Generate the file from the cleaned-up clone
-            const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'nabs-portal.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-
-        // Sync audio events
-        audio.onplay = () => setPlayingState(true);
-        audio.onpause = () => setPlayingState(false);
-
-        // Smooth Scroll
-        document.querySelectorAll('.nav-scroller a').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NABS | National Academic Broadcasting Station Official Portal</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lora:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --nabs-navy: #001f3f;
-            --nabs-gold: #c5a059;
-            --nabs-off-white: #fcfaf5;
-            --nabs-slate: #2c3e50;
-        }
-
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: var(--nabs-off-white);
-            color: var(--nabs-slate);
-            scroll-behavior: smooth;
-        }
-
-        .serif-title { font-family: 'Cinzel', serif; }
-        .serif-body { font-family: 'Lora', serif; }
-
-        /* Perfect Navbar Fix */
-        .nav-scroller {
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        .nav-scroller::-webkit-scrollbar { display: none; }
-
-        /* High-End Vinyl Animation */
-        .vinyl-wrapper {
-            perspective: 1000px;
-        }
-        .vinyl-record {
-            width: 320px;
-            height: 320px;
-            background: #111;
-            border-radius: 50%;
-            position: relative;
-            background: radial-gradient(circle, #333 0%, #111 40%, #222 50%, #111 60%, #333 70%, #111 100%);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: spin-vinyl 5s linear infinite;
-            animation-play-state: paused;
-            border: 2px solid #000;
-        }
-        .vinyl-record::before {
-            content: '';
-            position: absolute;
-            inset: 10px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: repeating-radial-gradient(circle, transparent, transparent 3px, rgba(255,255,255,0.02) 4px);
-        }
-        .vinyl-label {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 110px; height: 110px;
-            background: var(--nabs-gold);
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 4px solid #000;
-            text-align: center;
-            z-index: 10;
-        }
-        .vinyl-spindle {
-            width: 10px; height: 10px;
-            background: #fff;
-            border-radius: 50%;
-            box-shadow: inset 0 2px 2px rgba(0,0,0,0.5);
-        }
-
-        @keyframes spin-vinyl {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Signal Wave Animation */
-        .wave-container {
-            position: relative;
-            width: 100%; height: 350px;
-            background: var(--nabs-navy);
-            border-radius: 24px;
-            overflow: hidden;
-        }
-        .wave {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            border: 2px solid var(--nabs-gold);
-            border-radius: 50%;
-            opacity: 0;
-            animation: signal-pulse 4s infinite;
-            animation-play-state: paused;
-        }
-        .wave:nth-child(2) { animation-delay: 1s; }
-        .wave:nth-child(3) { animation-delay: 2s; }
-        
-        @keyframes signal-pulse {
-            0% { width: 0; height: 0; opacity: 0.8; }
-            100% { width: 600px; height: 600px; opacity: 0; }
-        }
-
-        .gold-divider {
-            width: 80px; height: 3px; background: var(--nabs-gold); margin: 20px auto;
-        }
-
-        .stat-card {
-            background: white;
-            border-bottom: 4px solid var(--nabs-gold);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .stat-card:hover { 
-            transform: translateY(-10px); 
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .on-air-lamp {
-            animation: lamp-glow 2s infinite;
-        }
-        @keyframes lamp-glow {
-            0%, 100% { opacity: 1; text-shadow: 0 0 10px #ff0000; }
-            50% { opacity: 0.6; text-shadow: 0 0 2px #ff0000; }
-        }
-
-        /* Playback status indicators */
-        .is-playing .wave {
-            animation-play-state: running;
-        }
-        .is-playing .vinyl-record {
-            animation-play-state: running;
-        }
-    </style>
-</head>
-<body class="antialiased">
-
-    <!-- Top Branding -->
-    <header class="bg-[#001f3f] text-white pt-16 pb-20 px-6 relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10 pointer-events-none">
-            <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-yellow-500 via-transparent to-transparent"></div>
-        </div>
-        
-        <div class="max-w-7xl mx-auto text-center relative z-10">
-            <div class="mb-6 inline-flex items-center gap-4 bg-red-950/40 border border-red-500 px-4 py-2 rounded-full">
-                <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                <span class="on-air-lamp text-red-500 text-[10px] font-black uppercase tracking-widest">Live: Transmission Active</span>
-            </div>
-            <div class="mb-8 block p-2 bg-white rounded-full shadow-2xl w-24 h-24 mx-auto overflow-hidden">
-                <img src="logo.png" alt="NABS Logo" class="w-full h-full object-contain" onerror="this.src='https://ui-avatars.com/api/?name=NABS&background=c5a059&color=fff&size=128'">
-            </div>
-            <h1 class="serif-title text-4xl md:text-6xl mb-4 tracking-wider">National Academic Broadcasting Station</h1>
-            <p class="uppercase tracking-[0.5em] text-xs md:text-sm text-yellow-500 font-black">Intellectual Integrity • 105.7 MHZ</p>
-        </div>
-    </header>
-
-    <!-- Navigation -->
-    <nav class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
-        <div class="max-w-7xl mx-auto flex items-center">
-            <div class="flex-none px-6 py-4 bg-[#001f3f] text-white hidden md:block">
-                <span class="font-bold text-xs">PORTAL HUB</span>
-            </div>
-            <div class="nav-scroller flex overflow-x-auto py-4 px-4 gap-8 w-full md:justify-center">
-                <a href="#about" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Mission</a>
-                <a href="#leadership" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Leadership</a>
-                <a href="#anchors" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Anchors</a>
-                <a href="#acoustics" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Acoustics</a>
-                <a href="#technical" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Engineering</a>
-                <a href="#standards" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Standards</a>
-                <a href="#demographics" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Audience</a>
-                <a href="#coverage" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">Coverage</a>
-                <a href="#history" class="text-[10px] font-black uppercase tracking-widest hover:text-yellow-600 transition-colors flex-none">History</a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero / Player -->
-    <section id="about" class="py-24 px-6 max-w-7xl mx-auto grid lg:grid-cols-2 gap-20 items-center">
-        <div class="space-y-8">
-            <h2 class="serif-title text-4xl text-[#001f3f]">The Academic Frequency</h2>
-            <div class="gold-divider !mx-0"></div>
-            <p class="serif-body text-2xl text-gray-700 leading-relaxed italic">
-                "Harnessing the power of radio to disseminate truth and intellectual focus across the nation."
-            </p>
-            <p class="text-gray-500 leading-relaxed border-l-2 border-gray-200 pl-6">
-                NABS Radio is not a commercial outlet. We are a dedicated educational platform. Our broadcasts are structured to aid concentration, providing a stable auditory environment for researchers, students, and professionals.
-            </p>
-            <div class="bg-[#001f3f] text-white p-6 rounded-2xl shadow-xl flex items-center gap-6">
-                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center animate-pulse"><i class="fas fa-ban"></i></div>
+    <!-- Admin Panel Modal -->
+    <div id="adminModal" class="admin-modal">
+        <div class="admin-panel">
+            <div class="bg-[#001f3f] text-white p-8 rounded-t-2xl flex justify-between items-center">
                 <div>
-                    <h4 class="font-black text-xs uppercase tracking-widest text-yellow-500">Curatorial Sovereignty</h4>
-                    <p class="text-[11px] opacity-70">Listeners are strictly prohibited from requesting content. All programming is scientifically sequenced.</p>
+                    <h2 class="serif-title text-3xl mb-2">Admin Control Panel</h2>
+                    <p class="text-yellow-500 text-xs uppercase tracking-widest font-black">Station Management</p>
                 </div>
-            </div>
-        </div>
-
-        <div class="flex flex-col items-center">
-            <div class="vinyl-wrapper">
-                <div class="vinyl-record">
-                    <div class="vinyl-label">
-                        <div class="vinyl-spindle mb-2"></div>
-                        <span class="text-[10px] font-black leading-none">NABS</span>
-                        <span class="text-[8px] font-bold text-navy-900 mt-1 uppercase italic">Multo</span>
-                        <span class="text-[6px] font-bold opacity-70 tracking-widest">CUP OF JOE</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Audio Logic -->
-            <audio id="mainAudio" src="song.mp3" preload="auto" loop></audio>
-
-            <div class="mt-12 text-center">
-                <div class="flex items-center justify-center gap-2 mb-2">
-                    <span id="statusIndicator" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Status: Standby</span>
-                </div>
-                <div class="flex items-center gap-6">
-                    <button id="vinylPlay" class="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-[#001f3f] hover:bg-yellow-500 transition-all border border-gray-100"><i class="fas fa-play text-xl ml-1"></i></button>
-                    <button id="vinylPause" class="w-16 h-16 rounded-full bg-[#001f3f] text-white shadow-xl flex items-center justify-center hover:bg-red-900 transition-all"><i class="fas fa-pause text-xl"></i></button>
-                </div>
-                <p class="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-60">Signature Selection: Multo - Cup of Joe</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Leadership -->
-    <section id="leadership" class="bg-white py-24 px-6 border-y border-gray-100">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-20">
-                <h2 class="serif-title text-4xl">Board of Management</h2>
-                <div class="gold-divider"></div>
-            </div>
-            <div class="grid md:grid-cols-2 gap-12 max-w-4xl mx-auto">
-                <div class="stat-card p-12 rounded-3xl text-center shadow-xl">
-                    <h3 class="serif-title text-3xl mb-2">Gillaine Chloe</h3>
-                    <div class="text-[10px] font-black uppercase tracking-[0.4em] text-blue-900 mb-6">Station Manager</div>
-                    <p class="serif-body text-sm text-gray-500 italic">"Our goal is to redefine how radio serves the academic sector."</p>
-                </div>
-                <div class="stat-card p-12 rounded-3xl text-center shadow-xl">
-                    <h3 class="serif-title text-3xl mb-2">Prince Andrei</h3>
-                    <div class="text-[10px] font-black uppercase tracking-[0.4em] text-yellow-700 mb-6">Content Manager</div>
-                    <p class="serif-body text-sm text-gray-500 italic">"Editorial excellence is the cornerstone of every broadcast."</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Anchors Credo -->
-    <section id="anchors" class="py-24 px-6 bg-[#001f3f] text-white">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="serif-title text-3xl text-yellow-500">The Anchor's Credo</h2>
-                <p class="mt-4 text-white/50 text-sm max-w-xl mx-auto">Our anchors are more than voices; they are the intellectual conduits of the NABS mission.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <div class="p-8 bg-white/5 rounded-2xl border border-white/10 text-center group hover:bg-yellow-500 hover:text-navy-900 transition-all cursor-default">
-                    <p class="font-black text-xs tracking-widest opacity-40 mb-4">01</p>
-                    <p class="font-bold">Athan Meir E. Obrero</p>
-                </div>
-                <div class="p-8 bg-white/5 rounded-2xl border border-white/10 text-center group hover:bg-yellow-500 hover:text-navy-900 transition-all cursor-default">
-                    <p class="font-black text-xs tracking-widest opacity-40 mb-4">02</p>
-                    <p class="font-bold">Akia P. Malimban</p>
-                </div>
-                <div class="p-8 bg-white/5 rounded-2xl border border-white/10 text-center group hover:bg-yellow-500 hover:text-navy-900 transition-all cursor-default">
-                    <p class="font-black text-xs tracking-widest opacity-40 mb-4">03</p>
-                    <p class="font-bold">Geri Nicole Guan</p>
-                </div>
-                <div class="p-8 bg-white/5 rounded-2xl border border-white/10 text-center group hover:bg-yellow-500 hover:text-navy-900 transition-all cursor-default">
-                    <p class="font-black text-xs tracking-widest opacity-40 mb-4">04</p>
-                    <p class="font-bold">Caite Nique</p>
-                </div>
-                <div class="p-8 bg-white/5 rounded-2xl border border-white/10 text-center group hover:bg-yellow-500 hover:text-navy-900 transition-all cursor-default">
-                    <p class="font-black text-xs tracking-widest opacity-40 mb-4">05</p>
-                    <p class="font-bold">Reiss Alano</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Acoustic Engineering -->
-    <section id="acoustics" class="py-24 px-6 max-w-7xl mx-auto">
-        <div class="grid lg:grid-cols-2 gap-16 items-center">
-            <div class="space-y-6">
-                <h2 class="serif-title text-4xl">Acoustic Standards</h2>
-                <div class="gold-divider !mx-0"></div>
-                <p class="text-gray-500">Our Technical Division ensures that every decibel emitted from 105.7 MHZ meets international broadcast standards for clarity and dynamic range.</p>
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="p-6 bg-white border border-gray-100 rounded-xl">
-                        <i class="fas fa-layer-group text-yellow-600 mb-2"></i>
-                        <h5 class="font-bold text-sm uppercase">Multiband Dynamics</h5>
-                        <p class="text-[10px] text-gray-400">Zero compression artifacts</p>
-                    </div>
-                    <div class="p-6 bg-white border border-gray-100 rounded-xl">
-                        <i class="fas fa-wave-square text-yellow-600 mb-2"></i>
-                        <h5 class="font-bold text-sm uppercase">Harmonic Balance</h5>
-                        <p class="text-[10px] text-gray-400">Optimized for focus</p>
-                    </div>
-                </div>
-            </div>
-            <div class="bg-[#0a0a0a] p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                <div class="absolute inset-0 opacity-10 flex items-center justify-center">
-                    <i class="fas fa-microchip text-[15rem] text-white"></i>
-                </div>
-                <div class="relative z-10 space-y-8">
-                    <h3 class="text-white serif-title text-xl border-b border-white/10 pb-4">Hardware Profile</h3>
-                    <div class="flex justify-between items-end">
-                        <div class="text-[10px] font-black text-white/40 uppercase">Acoustic Head</div>
-                        <div class="text-white font-bold">Nathaniel Niño Erazo</div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div class="text-[10px] font-black text-white/40 uppercase">Operational Ops</div>
-                        <div class="text-white font-bold">Jereon Gatdula</div>
-                    </div>
-                    <div class="pt-6">
-                        <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                            <div class="h-full bg-yellow-500 w-[98%]" title="Signal Purity"></div>
-                        </div>
-                        <p class="text-[10px] text-yellow-500 font-bold mt-2 uppercase tracking-widest">Signal Purity Index: 98.4%</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Technical Details -->
-    <section id="technical" class="bg-gray-100 py-24 px-6">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="serif-title text-4xl text-center mb-16">The Engineering Vault</h2>
-            <div class="grid md:grid-cols-4 gap-4">
-                <div class="bg-white p-8 rounded-2xl shadow-sm text-center">
-                    <h5 class="text-[10px] font-black text-gray-400 uppercase mb-4">Transmission</h5>
-                    <p class="font-bold text-lg">50kW ERP</p>
-                </div>
-                <div class="bg-white p-8 rounded-2xl shadow-sm text-center">
-                    <h5 class="text-[10px] font-black text-gray-400 uppercase mb-4">Modulation</h5>
-                    <p class="font-bold text-lg">Digital FM</p>
-                </div>
-                <div class="bg-white p-8 rounded-2xl shadow-sm text-center">
-                    <h5 class="text-[10px] font-black text-gray-400 uppercase mb-4">Encoding</h5>
-                    <p class="font-bold text-lg">AES/EBU</p>
-                </div>
-                <div class="bg-white p-8 rounded-2xl shadow-sm text-center">
-                    <h5 class="text-[10px] font-black text-gray-400 uppercase mb-4">Availability</h5>
-                    <p class="font-bold text-lg">99.9% Uptime</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Standards -->
-    <section id="standards" class="py-24 px-6 max-w-7xl mx-auto">
-        <div class="grid md:grid-cols-2 gap-16">
-            <div class="p-12 bg-[#001f3f] text-white rounded-[2rem]">
-                <h3 class="serif-title text-2xl text-yellow-500 mb-6">Broadcast Ethos</h3>
-                <ul class="space-y-6">
-                    <li class="flex gap-4">
-                        <i class="fas fa-balance-scale text-yellow-500 mt-1"></i>
-                        <p class="text-sm">Objective neutrality in all reporting and information delivery.</p>
-                    </li>
-                    <li class="flex gap-4">
-                        <i class="fas fa-university text-yellow-500 mt-1"></i>
-                        <p class="text-sm">Prioritization of peer-reviewed research and scholarly insights.</p>
-                    </li>
-                    <li class="flex gap-4">
-                        <i class="fas fa-shield-alt text-yellow-500 mt-1"></i>
-                        <p class="text-sm">Protection of the auditory environment against commercial interruption.</p>
-                    </li>
-                </ul>
-            </div>
-            <div class="space-y-8">
-                <h2 class="serif-title text-4xl">Programming Protocol</h2>
-                <div class="gold-divider !mx-0"></div>
-                <p class="text-gray-500">Every hour of NABS programming is audited by Content Manager Prince Andrei to ensure strict adherence to our educational mandate.</p>
-                <div class="p-6 border border-gray-200 rounded-xl italic text-gray-400 text-sm">
-                    "We do not play music for the sake of entertainment; we play it for the sake of enlightenment and focus."
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Demographics -->
-    <section id="demographics" class="py-24 px-6 bg-white border-y border-gray-100">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="serif-title text-4xl text-center mb-16">Listener Demographics</h2>
-            <div class="grid md:grid-cols-3 gap-12">
-                <div class="text-center">
-                    <div class="text-4xl font-black text-[#001f3f] mb-2">65%</div>
-                    <p class="uppercase font-black text-[10px] tracking-widest text-yellow-600">Post-Graduate Scholars</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-4xl font-black text-[#001f3f] mb-2">22%</div>
-                    <p class="uppercase font-black text-[10px] tracking-widest text-yellow-600">Academic Professionals</p>
-                </div>
-                <div class="text-center">
-                    <div class="text-4xl font-black text-[#001f3f] mb-2">13%</div>
-                    <p class="uppercase font-black text-[10px] tracking-widest text-yellow-600">Public Intellectuals</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Coverage -->
-    <section id="coverage" class="py-24 px-6 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <h2 class="serif-title text-4xl">Transmission Radius</h2>
-            <div class="gold-divider"></div>
-        </div>
-        <div id="signalContainer" class="wave-container flex flex-col items-center justify-center">
-            <div class="wave"></div>
-            <div class="wave)wave"></div>
-            <div class="wave"></div>
-            <div class="relative z-10 text-center">
-                <i class="fas fa-broadcast-tower text-6xl text-yellow-500 mb-6"></i>
-                <h4 class="text-white serif-title text-2xl uppercase tracking-widest">National Grid Active</h4>
-                <p class="text-white/40 text-[10px] mt-2 font-black uppercase tracking-widest">105.7 MHZ • Digital Relay</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- History -->
-    <section id="history" class="bg-[#f4f1ea] py-24 px-6">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="serif-title text-4xl text-center mb-16">Institutional History</h2>
-            <div class="space-y-16 border-l-2 border-yellow-600 pl-10 ml-4">
-                <div class="relative">
-                    <div class="absolute -left-[49px] top-0 w-8 h-8 rounded-full bg-white border-4 border-yellow-600 flex items-center justify-center font-bold text-[10px]">18</div>
-                    <h4 class="font-black text-xs text-yellow-700 uppercase tracking-widest mb-2">The Genesis</h4>
-                    <p class="serif-body text-gray-600">NABS was chartered as an independent frequency to counter the commercialization of national airwaves.</p>
-                </div>
-                <div class="relative">
-                    <div class="absolute -left-[49px] top-0 w-8 h-8 rounded-full bg-white border-4 border-yellow-600 flex items-center justify-center font-bold text-[10px]">21</div>
-                    <h4 class="font-black text-xs text-yellow-700 uppercase tracking-widest mb-2">Technological Sovereignty</h4>
-                    <p class="serif-body text-gray-600">Implementation of the first nationwide academic digital signal relay system.</p>
-                </div>
-                <div class="relative">
-                    <div class="absolute -left-[49px] top-0 w-8 h-8 rounded-full bg-white border-4 border-yellow-600 flex items-center justify-center font-bold text-[10px]">26</div>
-                    <h4 class="font-black text-xs text-yellow-700 uppercase tracking-widest mb-2">Contemporary Excellence</h4>
-                    <p class="serif-body text-gray-600">NABS continues to lead as the most trusted educational broadcaster in the region.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-[#001f3f] text-white py-24 px-6">
-        <div class="max-w-7xl mx-auto grid md:grid-cols-4 gap-12 border-b border-white/10 pb-20">
-            <div class="col-span-2">
-                <h3 class="serif-title text-3xl mb-6">NABS</h3>
-                <p class="text-white/50 text-sm max-w-md leading-relaxed">The National Academic Broadcasting Station. Our frequency is a commitment to the intellectual advancement of the citizenry.</p>
-                
-                <!-- Download Action (ID added for removal on export) -->
-                <button id="downloadPortal" class="mt-8 flex items-center gap-3 bg-yellow-600/20 border border-yellow-600/30 px-6 py-3 rounded-full hover:bg-yellow-600 hover:text-navy-900 transition-all group">
-                    <i class="fas fa-file-download text-yellow-500 group-hover:text-navy-900"></i>
-                    <span class="text-[10px] font-black uppercase tracking-widest">Download Portal Source</span>
+                <button id="closeAdmin" class="text-white hover:text-red-500 transition-colors">
+                    <i class="fas fa-times text-3xl"></i>
                 </button>
             </div>
-            <div>
-                <h4 class="text-yellow-500 font-black text-xs uppercase tracking-widest mb-6">Governance</h4>
-                <ul class="text-xs space-y-3 opacity-70">
-                    <li>Manager: Gillaine Chloe</li>
-                    <li>Content: Prince Andrei</li>
-                    <li>Tech: N.N. Erazo</li>
-                    <li>Ops: Jereon Gatdula</li>
-                </ul>
-            </div>
-            <div>
-                <h4 class="text-yellow-500 font-black text-xs uppercase tracking-widest mb-6">Directives</h4>
-                <p class="text-xs opacity-70 mb-4">No song requests entertained. Programming is absolute.</p>
-                <div class="flex gap-4">
-                    <a href="#" class="text-white hover:text-yellow-500 transition-colors"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-white hover:text-yellow-500 transition-colors"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="text-white hover:text-yellow-500 transition-colors"><i class="fas fa-rss"></i></a>
+
+            <div class="p-8 space-y-8">
+                <!-- Broadcast Status Control -->
+                <div class="border-2 border-gray-200 rounded-2xl p-6">
+                    <h3 class="font-black text-lg uppercase tracking-wide mb-4 flex items-center gap-3">
+                        <i class="fas fa-broadcast-tower text-yellow-600"></i>
+                        Broadcast Status
+                    </h3>
+                    <div class="flex items-center justify-between bg-gray-50 p-6 rounded-xl mb-4">
+                        <div>
+                            <p class="text-sm font-bold mb-1">Current Status:</p>
+                            <p id="adminStatus" class="text-2xl font-black text-green-600">ON AIR</p>
+                        </div>
+                        <div class="flex gap-3">
+                            <button id="setOnAir" class="px-6 py-3 bg-green-600 text-white rounded-lg font-bold text-sm hover:bg-green-700 transition-all">
+                                <i class="fas fa-play mr-2"></i>ON AIR
+                            </button>
+                            <button id="setOffAir" class="px-6 py-3 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-all">
+                                <i class="fas fa-stop mr-2"></i>OFF AIR
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Station Features Grid -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <!-- Ad Toggle -->
+                        <div class="bg-blue-50 p-3 rounded-lg border-2 border-blue-300">
+                            <p class="text-xs font-bold mb-1">Station Ads</p>
+                            <button id="toggleAds" class="w-full px-3 py-2 bg-gray-400 text-white rounded-lg font-bold text-xs transition-all">
+                                <i class="fas fa-toggle-off mr-1"></i><span id="adButtonText">OFF</span>
+                            </button>
+                        </div>
+
+                        <!-- Daily Opener -->
+                        <div class="bg-orange-50 p-3 rounded-lg border-2 border-orange-300">
+                            <p class="text-xs font-bold mb-1">Daily Opener (7am)</p>
+                            <button id="toggleOpener" class="w-full px-3 py-2 bg-gray-400 text-white rounded-lg font-bold text-xs transition-all">
+                                <i class="fas fa-toggle-off mr-1"></i><span id="openerButtonText">OFF</span>
+                            </button>
+                        </div>
+
+                        <!-- Loop Mode -->
+                        <div class="bg-purple-50 p-3 rounded-lg border-2 border-purple-300">
+                            <p class="text-xs font-bold mb-1">Loop Playlist</p>
+                            <button id="toggleLoop" class="w-full px-3 py-2 bg-purple-600 text-white rounded-lg font-bold text-xs transition-all">
+                                <i class="fas fa-toggle-on mr-1"></i><span id="loopButtonText">ON</span>
+                            </button>
+                        </div>
+
+                        <!-- Shuffle Mode -->
+                        <div class="bg-pink-50 p-3 rounded-lg border-2 border-pink-300">
+                            <p class="text-xs font-bold mb-1">Shuffle Songs</p>
+                            <button id="toggleShuffle" class="w-full px-3 py-2 bg-gray-400 text-white rounded-lg font-bold text-xs transition-all">
+                                <i class="fas fa-toggle-off mr-1"></i><span id="shuffleButtonText">OFF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sync Delay Setting -->
+                    <div class="bg-gray-50 p-4 rounded-xl mt-4 border-2 border-gray-300">
+                        <label class="text-xs font-bold mb-2 block">Sync Delay (seconds)</label>
+                        <div class="flex items-center gap-3">
+                            <input type="range" id="syncDelaySlider" min="60" max="300" value="60" class="flex-1">
+                            <span id="syncDelayValue" class="text-lg font-bold text-blue-600 w-16">60s</span>
+                        </div>
+                        <p class="text-xs text-gray-600 mt-1">New listeners join with this delay (60-300s)</p>
+                    </div>
+                </div>
+
+                <!-- Music Requests -->
+                <div class="border-2 border-gray-200 rounded-2xl p-6">
+                    <h3 class="font-black text-lg uppercase tracking-wide mb-4 flex items-center gap-3">
+                        <i class="fas fa-music text-yellow-600"></i>
+                        Music Requests <span class="text-sm font-normal text-gray-500">(<span id="requestCount">0</span> total)</span>
+                    </h3>
+                    <div class="mb-4 flex gap-2 text-xs">
+                        <button id="filterAll" class="px-3 py-1 rounded-full bg-gray-200 font-bold">All</button>
+                        <button id="filterPending" class="px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-bold">Pending</button>
+                        <button id="filterApproved" class="px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold">Approved</button>
+                        <button id="filterRejected" class="px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold">Rejected</button>
+                    </div>
+                    <div id="requestList" class="space-y-3 max-h-96 overflow-y-auto">
+                        <p class="text-gray-400 text-sm italic text-center py-8">No requests yet</p>
+                    </div>
+                </div>
+
+                <!-- Song Library Management -->
+                <div class="border-2 border-gray-200 rounded-2xl p-6">
+                    <h3 class="font-black text-lg uppercase tracking-wide mb-4 flex items-center gap-3">
+                        <i class="fas fa-compact-disc text-yellow-600"></i>
+                        Song Library <span class="text-sm font-normal text-gray-500">(<span id="songCount">0</span> songs)</span>
+                    </h3>
+
+                    <!-- Station Statistics -->
+                    <div class="grid grid-cols-3 gap-3 mb-4">
+                        <div class="bg-green-50 p-3 rounded-lg text-center border border-green-200">
+                            <p class="text-2xl font-black text-green-600" id="listenerCount">0</p>
+                            <p class="text-xs text-gray-600">Active Listeners</p>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
+                            <p class="text-2xl font-black text-blue-600" id="totalPlays">0</p>
+                            <p class="text-xs text-gray-600">Total Plays</p>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg text-center border border-purple-200">
+                            <p class="text-2xl font-black text-purple-600" id="uptime">0h</p>
+                            <p class="text-xs text-gray-600">Uptime Today</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Add New Song Form -->
+                    <div class="bg-gray-50 p-4 rounded-xl mb-4">
+                        <h4 class="font-bold text-sm mb-3">Add New Song</h4>
+                        <div class="space-y-3">
+                            <input type="text" id="newSongTitle" placeholder="Song Title" class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <input type="text" id="newSongArtist" placeholder="Artist Name" class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <input type="text" id="newSongFilename" placeholder="Filename (e.g., song.mp3)" class="w-full px-3 py-2 border rounded-lg text-sm">
+                            <p class="text-xs text-gray-500 italic">
+                                File should be at: <code class="bg-gray-200 px-1 rounded">https://github.com/Landing749/NABS/raw/main/[filename]</code>
+                            </p>
+                            <button id="addSongButton" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-green-700">
+                                <i class="fas fa-plus mr-2"></i>Add Song
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Current Playing (Synced) -->
+                    <div class="bg-yellow-50 border-2 border-yellow-500 p-4 rounded-xl mb-4">
+                        <h4 class="font-bold text-sm mb-2 flex items-center gap-2">
+                            <i class="fas fa-broadcast-tower text-yellow-600"></i>
+                            Broadcasting Now (All Listeners Synced)
+                        </h4>
+                        <div id="currentlyBroadcasting" class="text-sm">
+                            <p class="font-bold" id="broadcastSongTitle">Auto-cycling through library</p>
+                            <p class="text-gray-600 text-xs" id="broadcastSongArtist">-</p>
+                            <p class="text-xs text-gray-500 mt-1">Status: <span id="broadcastStatus" class="font-bold">Auto-play</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Song List -->
+                    <div id="songList" class="space-y-2 max-h-96 overflow-y-auto">
+                        <p class="text-gray-400 text-sm italic text-center py-4">No songs yet. Songs will auto-cycle once added.</p>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="pt-12 text-center">
-            <p class="text-[10px] text-white/20 uppercase tracking-[0.5em] font-bold">Documented and Authorized for Digital Propagation</p>
-            <p class="text-[10px] text-yellow-500/50 font-bold mt-2 italic">Official Information Hub of the National Academic Broadcasting Station &copy; 2026</p>
-        </div>
-    </footer>
+    </div>
 
     <script>
+        // Wait for DOM and give Firebase time to load
+        window.addEventListener('load', function() {
+            // Wait 500ms to ensure Firebase scripts are fully loaded
+            setTimeout(function() {
+                console.log('Page fully loaded, initializing...');
+                console.log('Firebase available:', typeof firebase !== 'undefined');
+
+                // Check if Firebase is loaded
+                if (typeof firebase === 'undefined') {
+                    console.error('Firebase not loaded! Trying alternative CDN...');
+                    
+                    // Try loading from alternative CDN
+                    const script1 = document.createElement('script');
+                    script1.src = 'https://www.gstatic.com/firebasejs/7.24.0/firebase-app.js';
+                    script1.onload = function() {
+                        const script2 = document.createElement('script');
+                        script2.src = 'https://www.gstatic.com/firebasejs/7.24.0/firebase-database.js';
+                        script2.onload = function() {
+                            setTimeout(initializeApp, 500);
+                        };
+                        document.head.appendChild(script2);
+                    };
+                    document.head.appendChild(script1);
+                    return;
+                }
+
+                initializeApp();
+            }, 500);
+        });
+
+        function initializeApp() {
+            if (typeof firebase === 'undefined') {
+                alert('Firebase failed to load. Please check your internet connection and refresh the page.');
+                return;
+            }
+
+            // Firebase Configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyCVp6fW915-phMWrNTJjRgmjT2qeb24nIY",
+                authDomain: "news-672f6.firebaseapp.com",
+                databaseURL: "https://news-672f6-default-rtdb.firebaseio.com",
+                projectId: "news-672f6",
+                storageBucket: "news-672f6.firebasestorage.app",
+                messagingSenderId: "864345289952",
+                appId: "1:864345289952:web:c3f628b007e95625b7cc85",
+                measurementId: "G-B5TV156QYP"
+            };
+
+            // Initialize Firebase
+            try {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                alert('Failed to initialize Firebase: ' + error.message);
+                return;
+            }
+
+            const database = firebase.database();
+            console.log('Firebase database ready');
+
+        // DOM Elements
         const playBtn = document.getElementById('vinylPlay');
         const pauseBtn = document.getElementById('vinylPause');
         const record = document.querySelector('.vinyl-record');
         const audio = document.getElementById('mainAudio');
         const statusIndicator = document.getElementById('statusIndicator');
         const signalContainer = document.getElementById('signalContainer');
-        const downloadBtn = document.getElementById('downloadPortal');
+        
+        // Transmission Indicator Elements
+        const transmissionIndicator = document.getElementById('transmissionIndicator');
+        const transmissionDot = document.getElementById('transmissionDot');
+        const transmissionText = document.getElementById('transmissionText');
+
+        // Function to update transmission indicator
+        function updateTransmissionIndicator(isOnAir) {
+            if (isOnAir) {
+                // ON AIR styling
+                transmissionIndicator.className = 'mb-6 inline-flex items-center gap-4 bg-red-950/40 border border-red-500 px-4 py-2 rounded-full';
+                transmissionDot.className = 'w-2 h-2 bg-red-500 rounded-full animate-pulse';
+                transmissionText.className = 'on-air-lamp text-red-500 text-[10px] font-black uppercase tracking-widest';
+                transmissionText.textContent = 'Live: Transmission Active';
+            } else {
+                // OFF AIR styling
+                transmissionIndicator.className = 'mb-6 inline-flex items-center gap-4 bg-gray-800/40 border border-gray-500 px-4 py-2 rounded-full';
+                transmissionDot.className = 'w-2 h-2 bg-gray-500 rounded-full';
+                transmissionText.className = 'text-gray-400 text-[10px] font-black uppercase tracking-widest';
+                transmissionText.textContent = 'Off Air: Standby Mode';
+            }
+        }
 
         // Function to update visual states
         function setPlayingState(isPlaying) {
@@ -1099,33 +1319,194 @@
             });
         });
 
-        // Download Logic with Self-Removal
-        downloadBtn.addEventListener('click', () => {
-            // 1. Create a clone of the entire document
-            const clone = document.documentElement.cloneNode(true);
-            
-            // 2. Find and remove the download button from the clone
-            const cloneDownloadBtn = clone.querySelector('#downloadPortal');
-            if (cloneDownloadBtn) {
-                cloneDownloadBtn.remove();
-            }
-
-            // 3. Generate the file from the cleaned-up clone
-            const htmlContent = '<!DOCTYPE html>\n' + clone.outerHTML;
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'nabs-portal.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-
         // Sync audio events
         audio.onplay = () => setPlayingState(true);
         audio.onpause = () => setPlayingState(false);
+
+        // ===== TIME OF DAY THEMES =====
+        function applyTimeOfDayTheme() {
+            const hour = new Date().getHours();
+            const body = document.body;
+            
+            // Remove all theme classes
+            body.classList.remove('morning-theme', 'afternoon-theme', 'evening-theme', 'night-theme');
+            
+            if (hour >= 5 && hour < 12) {
+                body.classList.add('morning-theme');
+                console.log('Applied morning theme');
+            } else if (hour >= 12 && hour < 17) {
+                body.classList.add('afternoon-theme');
+                console.log('Applied afternoon theme');
+            } else if (hour >= 17 && hour < 21) {
+                body.classList.add('evening-theme');
+                console.log('Applied evening theme');
+            } else {
+                body.classList.add('night-theme');
+                console.log('Applied night theme');
+            }
+        }
+
+        // ===== SEASONAL TRANSFORMATIONS =====
+        function getSeason() {
+            const month = new Date().getMonth();
+            // 0=Jan, 1=Feb, etc.
+            if (month >= 2 && month <= 4) return 'spring'; // Mar-May
+            if (month >= 5 && month <= 7) return 'summer'; // Jun-Aug
+            if (month >= 8 && month <= 10) return 'autumn'; // Sep-Nov
+            return 'winter'; // Dec-Feb
+        }
+
+        function createSeasonalEffects() {
+            const season = getSeason();
+            const overlay = document.getElementById('seasonOverlay');
+            overlay.innerHTML = '';
+            
+            console.log('Creating seasonal effects for:', season);
+            
+            if (season === 'spring') {
+                // Create falling petals
+                for (let i = 0; i < 20; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'spring-petal';
+                    petal.style.left = Math.random() * 100 + '%';
+                    petal.style.animationDelay = Math.random() * 15 + 's';
+                    petal.style.animationDuration = (10 + Math.random() * 10) + 's';
+                    overlay.appendChild(petal);
+                }
+            } else if (season === 'summer') {
+                // Create sun rays
+                for (let i = 0; i < 8; i++) {
+                    const ray = document.createElement('div');
+                    ray.className = 'summer-ray';
+                    ray.style.left = (i * 12.5) + '%';
+                    ray.style.animationDelay = (i * 0.5) + 's';
+                    overlay.appendChild(ray);
+                }
+            } else if (season === 'autumn') {
+                // Create falling leaves
+                for (let i = 0; i < 15; i++) {
+                    const leaf = document.createElement('div');
+                    leaf.className = 'autumn-leaf';
+                    leaf.style.left = Math.random() * 100 + '%';
+                    leaf.style.animationDelay = Math.random() * 12 + 's';
+                    leaf.style.animationDuration = (8 + Math.random() * 8) + 's';
+                    overlay.appendChild(leaf);
+                }
+            } else if (season === 'winter') {
+                // Create snowflakes
+                for (let i = 0; i < 30; i++) {
+                    const snow = document.createElement('div');
+                    snow.className = 'winter-snow';
+                    snow.style.left = Math.random() * 100 + '%';
+                    snow.style.animationDelay = Math.random() * 10 + 's';
+                    snow.style.animationDuration = (6 + Math.random() * 6) + 's';
+                    overlay.appendChild(snow);
+                }
+            }
+        }
+
+        // ===== WEATHER-SYNCED AUDIO =====
+        const ambientAudio = document.getElementById('ambientAudio');
+        const weatherIndicator = document.getElementById('weatherIndicator');
+        const weatherIcon = document.getElementById('weatherIcon');
+        const weatherText = document.getElementById('weatherText');
+        
+        // Using OpenWeatherMap API - Free tier
+        async function fetchWeather() {
+            try {
+                // Using Tanza, Cavite coordinates
+                const lat = 14.3751;
+                const lon = 120.8798;
+                // Using a working API key - you should get your own from openweathermap.org
+                const apiKey = 'b6907d289e10d714a6e88b30761fae22';
+                
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+                console.log('Fetching weather from:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                console.log('Weather data:', data);
+                
+                const weather = data.weather[0].main.toLowerCase();
+                const temp = Math.round(data.main.temp);
+                
+                updateWeatherDisplay(weather, temp, data.weather[0].description);
+                playWeatherAmbient(weather);
+                
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                // Fallback to showing time-based weather
+                const hour = new Date().getHours();
+                if (hour >= 6 && hour < 18) {
+                    weatherIcon.className = 'fas fa-sun weather-icon';
+                    weatherText.textContent = 'Daytime';
+                } else {
+                    weatherIcon.className = 'fas fa-moon weather-icon';
+                    weatherText.textContent = 'Nighttime';
+                }
+            }
+        }
+
+        function updateWeatherDisplay(weather, temp, description) {
+            let icon = 'fa-cloud';
+            
+            if (weather.includes('rain') || weather.includes('drizzle')) {
+                icon = 'fa-cloud-rain';
+            } else if (weather.includes('thunder') || weather.includes('storm')) {
+                icon = 'fa-cloud-bolt';
+            } else if (weather.includes('snow')) {
+                icon = 'fa-snowflake';
+            } else if (weather.includes('clear')) {
+                icon = 'fa-sun';
+            } else if (weather.includes('cloud')) {
+                icon = 'fa-cloud';
+            } else if (weather.includes('mist') || weather.includes('fog')) {
+                icon = 'fa-smog';
+            }
+            
+            weatherIcon.className = `fas ${icon} weather-icon`;
+            weatherText.textContent = `${temp}°C • ${description}`;
+        }
+
+        function playWeatherAmbient(weather) {
+            // Using Freesound ambient tracks (public domain)
+            let ambientUrl = '';
+            
+            if (weather.includes('rain') || weather.includes('drizzle')) {
+                ambientUrl = 'https://freesound.org/data/previews/222/222522_2394245-lq.mp3'; // Rain
+                console.log('Playing rain ambient');
+            } else if (weather.includes('thunder') || weather.includes('storm')) {
+                ambientUrl = 'https://freesound.org/data/previews/416/416542_5121236-lq.mp3'; // Thunder
+                console.log('Playing thunder ambient');
+            } else if (weather.includes('wind')) {
+                ambientUrl = 'https://freesound.org/data/previews/546/546548_11935698-lq.mp3'; // Wind
+                console.log('Playing wind ambient');
+            }
+            
+            if (ambientUrl) {
+                document.getElementById('ambientSource').src = ambientUrl;
+                ambientAudio.load();
+                ambientAudio.volume = 0.15; // Low volume, just atmosphere
+                ambientAudio.play().catch(err => console.log('Ambient audio autoplay blocked'));
+            }
+        }
+
+        // Initialize all features
+        applyTimeOfDayTheme();
+        createSeasonalEffects();
+        fetchWeather();
+
+        // Update time theme every hour
+        setInterval(applyTimeOfDayTheme, 60 * 60 * 1000);
+        
+        // Refresh weather every 30 minutes
+        setInterval(fetchWeather, 30 * 60 * 1000);
 
         // Smooth Scroll
         document.querySelectorAll('.nav-scroller a').forEach(anchor => {
@@ -1138,7 +1519,1068 @@
                 }
             });
         });
+
+        // Audio Visualizer
+        const visualizerBars = document.querySelectorAll('.visualizer-bar');
+        
+        function animateVisualizer() {
+            visualizerBars.forEach(bar => {
+                const randomHeight = Math.random() * 80 + 20;
+                bar.style.height = randomHeight + 'px';
+            });
+        }
+
+        let visualizerInterval;
+        audio.addEventListener('play', () => {
+            visualizerInterval = setInterval(animateVisualizer, 150);
+        });
+        
+        audio.addEventListener('pause', () => {
+            clearInterval(visualizerInterval);
+            visualizerBars.forEach((bar, index) => {
+                const heights = [20, 35, 50, 45, 65, 80, 70, 55, 60, 45, 30, 40, 55, 70, 60, 45, 30, 25];
+                bar.style.height = heights[index] + 'px';
+            });
+        });
+
+        // Music Request System with Firebase
+        const requestForm = {
+            name: document.getElementById('requestName'),
+            song: document.getElementById('requestSong'),
+            artist: document.getElementById('requestArtist'),
+            reason: document.getElementById('requestReason'),
+            submit: document.getElementById('submitRequest'),
+            message: document.getElementById('requestMessage')
+        };
+
+        // ===== AUTO-CYCLING SYNCED RADIO SYSTEM =====
+        const GITHUB_RAW_BASE = 'https://github.com/Landing749/NABS/raw/main/';
+        const AD_URL = GITHUB_RAW_BASE + 'ad.mp3';
+        const OPENER_URL = GITHUB_RAW_BASE + 'opening.mp3';
+        
+        let songLibrary = [];
+        let adsEnabled = false;
+        let openerEnabled = false;
+        let loopEnabled = true;
+        let shuffleEnabled = false;
+        let syncDelay = 60; // seconds
+        let hasPlayedOpenerToday = false;
+        let listenerHeartbeatInterval;
+        
+        // UI Elements
+        const vinylArtist = document.getElementById('vinylArtist');
+        const vinylTitle = document.getElementById('vinylTitle');
+        const nowPlayingText = document.getElementById('nowPlayingText');
+        const songList = document.getElementById('songList');
+        const songCount = document.getElementById('songCount');
+        
+        // Admin Controls
+        const newSongTitle = document.getElementById('newSongTitle');
+        const newSongArtist = document.getElementById('newSongArtist');
+        const newSongFilename = document.getElementById('newSongFilename');
+        const addSongButton = document.getElementById('addSongButton');
+        const broadcastSongTitle = document.getElementById('broadcastSongTitle');
+        const broadcastSongArtist = document.getElementById('broadcastSongArtist');
+        const broadcastStatus = document.getElementById('broadcastStatus');
+        const toggleAdsButton = document.getElementById('toggleAds');
+        const toggleOpenerButton = document.getElementById('toggleOpener');
+        const toggleLoopButton = document.getElementById('toggleLoop');
+        const toggleShuffleButton = document.getElementById('toggleShuffle');
+        const syncDelaySlider = document.getElementById('syncDelaySlider');
+        const syncDelayValue = document.getElementById('syncDelayValue');
+        
+        // Stats
+        const listenerCountEl = document.getElementById('listenerCount');
+        const totalPlaysEl = document.getElementById('totalPlays');
+        const uptimeEl = document.getElementById('uptime');
+
+        // Firebase References
+        const nowPlayingRef = database.ref('nowPlaying');
+        const songsRef = database.ref('songs');
+        const settingsRef = database.ref('settings');
+        const statsRef = database.ref('stats');
+        const listenersRef = database.ref('listeners');
+
+        // Generate unique listener ID
+        const listenerId = 'listener_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+        // Register this listener
+        function registerListener() {
+            const listenerRef = listenersRef.child(listenerId);
+            listenerRef.set({
+                joinedAt: firebase.database.ServerValue.TIMESTAMP,
+                lastSeen: firebase.database.ServerValue.TIMESTAMP
+            });
+            
+            // Remove on disconnect
+            listenerRef.onDisconnect().remove();
+            
+            // Heartbeat every 30 seconds
+            listenerHeartbeatInterval = setInterval(() => {
+                listenerRef.child('lastSeen').set(firebase.database.ServerValue.TIMESTAMP);
+            }, 30000);
+        }
+
+        registerListener();
+
+        // Count active listeners (cleanup old ones)
+        listenersRef.on('value', (snapshot) => {
+            const listeners = snapshot.val() || {};
+            const now = Date.now();
+            let activeCount = 0;
+            
+            Object.entries(listeners).forEach(([id, data]) => {
+                if (now - (data.lastSeen || 0) < 60000) { // Active in last 60 seconds
+                    activeCount++;
+                } else {
+                    // Cleanup stale listeners
+                    listenersRef.child(id).remove();
+                }
+            });
+            
+            if (listenerCountEl) {
+                listenerCountEl.textContent = activeCount;
+            }
+        });
+
+        // Listen for settings
+        settingsRef.on('value', (snapshot) => {
+            const settings = snapshot.val() || {};
+            
+            adsEnabled = settings.adsEnabled === true;
+            openerEnabled = settings.openerEnabled === true;
+            loopEnabled = settings.loopEnabled !== false;
+            shuffleEnabled = settings.shuffleEnabled === true;
+            syncDelay = settings.syncDelay || 60;
+            
+            // Update UI
+            updateToggleButton(toggleAdsButton, adsEnabled, 'adButtonText', 'blue');
+            updateToggleButton(toggleOpenerButton, openerEnabled, 'openerButtonText', 'orange');
+            updateToggleButton(toggleLoopButton, loopEnabled, 'loopButtonText', 'purple');
+            updateToggleButton(toggleShuffleButton, shuffleEnabled, 'shuffleButtonText', 'pink');
+            
+            if (syncDelaySlider) {
+                syncDelaySlider.value = syncDelay;
+                syncDelayValue.textContent = syncDelay + 's';
+            }
+        });
+
+        function updateToggleButton(button, isOn, textId, color) {
+            if (!button) return;
+            const textEl = document.getElementById(textId);
+            
+            if (isOn) {
+                button.className = `w-full px-3 py-2 bg-${color}-600 text-white rounded-lg font-bold text-xs transition-all`;
+                button.innerHTML = `<i class="fas fa-toggle-on mr-1"></i><span id="${textId}">ON</span>`;
+            } else {
+                button.className = 'w-full px-3 py-2 bg-gray-400 text-white rounded-lg font-bold text-xs transition-all';
+                button.innerHTML = `<i class="fas fa-toggle-off mr-1"></i><span id="${textId}">OFF</span>`;
+            }
+        }
+
+        // Toggle buttons
+        if (toggleAdsButton) {
+            toggleAdsButton.addEventListener('click', () => {
+                settingsRef.child('adsEnabled').set(!adsEnabled);
+            });
+        }
+
+        if (toggleOpenerButton) {
+            toggleOpenerButton.addEventListener('click', () => {
+                settingsRef.child('openerEnabled').set(!openerEnabled);
+            });
+        }
+
+        if (toggleLoopButton) {
+            toggleLoopButton.addEventListener('click', () => {
+                settingsRef.child('loopEnabled').set(!loopEnabled);
+            });
+        }
+
+        if (toggleShuffleButton) {
+            toggleShuffleButton.addEventListener('click', () => {
+                settingsRef.child('shuffleEnabled').set(!shuffleEnabled);
+            });
+        }
+
+        if (syncDelaySlider) {
+            syncDelaySlider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                syncDelayValue.textContent = value + 's';
+            });
+            
+            syncDelaySlider.addEventListener('change', (e) => {
+                const value = parseInt(e.target.value);
+                settingsRef.child('syncDelay').set(value);
+            });
+        }
+
+        // Listen to now playing
+        nowPlayingRef.on('value', (snapshot) => {
+            const nowPlaying = snapshot.val();
+            
+            if (nowPlaying && nowPlaying.url) {
+                loadCurrentSong(nowPlaying);
+            } else {
+                vinylArtist.textContent = 'Loading...';
+                vinylTitle.textContent = 'STANDBY';
+                nowPlayingText.textContent = 'Station starting...';
+            }
+        });
+
+        function loadCurrentSong(nowPlaying) {
+            const { title, artist, url, isPlaying, timestamp, isAd, isOpener } = nowPlaying;
+            
+            console.log('Syncing to:', title, 'Type:', isOpener ? 'Opener' : isAd ? 'Ad' : 'Song');
+            
+            // Update UI
+            if (isOpener) {
+                vinylArtist.textContent = 'NABS';
+                vinylTitle.textContent = 'DAILY OPENER';
+                nowPlayingText.textContent = 'Good Morning - Station Opening';
+            } else if (isAd) {
+                vinylArtist.textContent = 'NABS';
+                vinylTitle.textContent = 'STATION ID';
+                nowPlayingText.textContent = 'Station Identification';
+            } else {
+                vinylArtist.textContent = artist;
+                vinylTitle.textContent = title.toUpperCase();
+                nowPlayingText.textContent = `Now Playing: ${title} - ${artist}`;
+            }
+            
+            // Update admin panel
+            if (broadcastSongTitle) {
+                broadcastSongTitle.textContent = isOpener ? 'Daily Opener' : isAd ? 'NABS Station ID' : title;
+                broadcastSongArtist.textContent = isOpener ? 'Morning Show' : isAd ? 'Station Advertisement' : artist;
+                broadcastStatus.textContent = isPlaying ? 'Playing ▶️' : 'Paused ⏸️';
+                broadcastStatus.className = isPlaying ? 'font-bold text-green-600' : 'font-bold text-red-600';
+            }
+            
+            // Load audio if different
+            if (audio.src !== url) {
+                audio.src = url;
+                audio.load();
+            }
+            
+            // Sync playback with delay
+            if (isPlaying && audio.paused) {
+                let elapsed = (Date.now() - timestamp) / 1000;
+                // Apply sync delay
+                elapsed = Math.max(0, elapsed - syncDelay);
+                audio.currentTime = elapsed % audio.duration || 0;
+                audio.play().catch(err => console.log('Auto-play blocked'));
+            } else if (!isPlaying && !audio.paused) {
+                audio.pause();
+            }
+            
+            // Increment play count
+            if (isPlaying && !isAd && !isOpener) {
+                statsRef.child('totalPlays').transaction((current) => (current || 0) + 1);
+            }
+        }
+
+        // Load song library
+        songsRef.on('value', (snapshot) => {
+            const songs = snapshot.val() || {};
+            songLibrary = Object.entries(songs).map(([id, song]) => ({
+                id,
+                ...song
+            })).sort((a, b) => (a.order || 0) - (b.order || 0));
+            
+            songCount.textContent = songLibrary.length;
+            updateSongList();
+            
+            // Start auto-cycle if needed
+            if (songLibrary.length > 0) {
+                nowPlayingRef.once('value', (snapshot) => {
+                    if (!snapshot.exists()) {
+                        checkAndPlayOpener();
+                    }
+                });
+            }
+        });
+
+        // Stats listener
+        statsRef.on('value', (snapshot) => {
+            const stats = snapshot.val() || {};
+            if (totalPlaysEl) totalPlaysEl.textContent = stats.totalPlays || 0;
+            if (uptimeEl) uptimeEl.textContent = Math.floor((stats.uptime || 0) / 3600) + 'h';
+        });
+
+        function updateSongList() {
+            if (songLibrary.length === 0) {
+                songList.innerHTML = '<p class="text-gray-400 text-sm italic text-center py-4">No songs yet. Songs will auto-cycle once added.</p>';
+                return;
+            }
+
+            songList.innerHTML = songLibrary.map((song, index) => `
+                <div class="bg-gray-50 p-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors">
+                    <div class="flex-1">
+                        <p class="font-bold text-sm">${song.title}</p>
+                        <p class="text-xs text-gray-600">${song.artist}</p>
+                        <p class="text-xs text-gray-400 mt-1">${song.filename}</p>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <span class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">#{index + 1}</span>
+                        <button onclick="deleteSong('${song.id}')" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Check if we should play opener (7am daily)
+        function checkAndPlayOpener() {
+            if (!openerEnabled) {
+                startAutoCycle();
+                return;
+            }
+            
+            const now = new Date();
+            const hour = now.getHours();
+            const today = now.toDateString();
+            
+            // Check if we already played opener today
+            settingsRef.child('lastOpenerDate').once('value', (snapshot) => {
+                const lastDate = snapshot.val();
+                
+                if (hour === 7 && lastDate !== today) {
+                    // Play opener
+                    playOpener();
+                    settingsRef.child('lastOpenerDate').set(today);
+                } else {
+                    startAutoCycle();
+                }
+            });
+        }
+
+        function startAutoCycle() {
+            if (songLibrary.length === 0) return;
+            
+            nowPlayingRef.child('currentIndex').once('value', (snapshot) => {
+                let currentIndex = snapshot.val() || 0;
+                if (currentIndex >= songLibrary.length) currentIndex = 0;
+                
+                playNextInCycle(currentIndex);
+            });
+        }
+
+        function playNextInCycle(index) {
+            if (songLibrary.length === 0) return;
+            
+            // Shuffle if enabled
+            if (shuffleEnabled) {
+                index = Math.floor(Math.random() * songLibrary.length);
+            }
+            
+            const song = songLibrary[index];
+            const url = GITHUB_RAW_BASE + encodeURIComponent(song.filename);
+            
+            nowPlayingRef.set({
+                songId: song.id,
+                title: song.title,
+                artist: song.artist,
+                url: url,
+                filename: song.filename,
+                isPlaying: true,
+                isAd: false,
+                isOpener: false,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                currentIndex: index
+            });
+            
+            console.log('Auto-cycling to:', song.title);
+        }
+
+        function playAd() {
+            nowPlayingRef.set({
+                title: 'Station ID',
+                artist: 'NABS',
+                url: AD_URL,
+                isPlaying: true,
+                isAd: true,
+                isOpener: false,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        function playOpener() {
+            nowPlayingRef.set({
+                title: 'Morning Show',
+                artist: 'NABS',
+                url: OPENER_URL,
+                isPlaying: true,
+                isAd: false,
+                isOpener: true,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                currentIndex: 0
+            });
+            
+            console.log('Playing daily opener');
+        }
+
+        // When song ends
+        audio.addEventListener('ended', () => {
+            nowPlayingRef.once('value', (snapshot) => {
+                const current = snapshot.val();
+                
+                if (!current) {
+                    checkAndPlayOpener();
+                    return;
+                }
+                
+                // If opener just ended, start normal cycle
+                if (current.isOpener) {
+                    startAutoCycle();
+                }
+                // If ad just ended, play next song
+                else if (current.isAd) {
+                    const nextIndex = (current.currentIndex + 1) % songLibrary.length;
+                    playNextInCycle(nextIndex);
+                }
+                // If song ended
+                else {
+                    // Check if we should play ad
+                    if (adsEnabled) {
+                        playAd();
+                    } else {
+                        // Check if loop is enabled or if there are more songs
+                        const nextIndex = (current.currentIndex || 0) + 1;
+                        
+                        if (nextIndex >= songLibrary.length) {
+                            if (loopEnabled) {
+                                playNextInCycle(0); // Loop back to start
+                            } else {
+                                // End of playlist, no loop
+                                console.log('Playlist ended, no loop');
+                            }
+                        } else {
+                            playNextInCycle(nextIndex);
+                        }
+                    }
+                }
+            });
+        });
+
+        // Add new song
+        if (addSongButton) {
+            addSongButton.addEventListener('click', () => {
+                const title = newSongTitle.value.trim();
+                const artist = newSongArtist.value.trim();
+                const filename = newSongFilename.value.trim();
+                
+                if (!title || !artist || !filename) {
+                    alert('Please fill in all fields');
+                    return;
+                }
+                
+                const song = {
+                    title,
+                    artist,
+                    filename,
+                    order: songLibrary.length,
+                    addedAt: firebase.database.ServerValue.TIMESTAMP
+                };
+                
+                songsRef.push(song)
+                    .then(() => {
+                        console.log('Song added:', title);
+                        newSongTitle.value = '';
+                        newSongArtist.value = '';
+                        newSongFilename.value = '';
+                        
+                        alert('✅ Song added! It will auto-cycle in rotation.\n\nMake sure file exists at:\n' + GITHUB_RAW_BASE + filename);
+                    })
+                    .catch(error => {
+                        console.error('Error adding song:', error);
+                        alert('Error: ' + error.message);
+                    });
+            });
+        }
+
+        window.deleteSong = function(songId) {
+            if (confirm('Delete this song from rotation?')) {
+                songsRef.child(songId).remove();
+            }
+        };
+
+        requestForm.submit.addEventListener('click', () => {
+            if (!requestForm.name.value || !requestForm.song.value || !requestForm.artist.value) {
+                requestForm.message.textContent = 'Please fill in all required fields';
+                requestForm.message.className = 'text-center text-sm font-bold text-red-500 block';
+                setTimeout(() => requestForm.message.classList.add('hidden'), 3000);
+                return;
+            }
+
+            const request = {
+                name: requestForm.name.value,
+                song: requestForm.song.value,
+                artist: requestForm.artist.value,
+                reason: requestForm.reason.value,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                status: 'pending'
+            };
+
+            // Push to Firebase
+            database.ref('requests').push(request)
+                .then(() => {
+                    requestForm.message.textContent = '✓ Request submitted successfully! Our team will review it.';
+                    requestForm.message.className = 'text-center text-sm font-bold text-green-600 block';
+                    
+                    // Clear form
+                    requestForm.name.value = '';
+                    requestForm.song.value = '';
+                    requestForm.artist.value = '';
+                    requestForm.reason.value = '';
+
+                    setTimeout(() => requestForm.message.classList.add('hidden'), 5000);
+                })
+                .catch((error) => {
+                    console.error('Error submitting request:', error);
+                    requestForm.message.textContent = 'Error submitting request. Please try again.';
+                    requestForm.message.className = 'text-center text-sm font-bold text-red-500 block';
+                    setTimeout(() => requestForm.message.classList.add('hidden'), 3000);
+                });
+        });
+
+        // Admin Panel
+        const adminModal = document.getElementById('adminModal');
+        const adminTrigger = document.getElementById('adminTrigger');
+        const closeAdmin = document.getElementById('closeAdmin');
+        const setOnAir = document.getElementById('setOnAir');
+        const setOffAir = document.getElementById('setOffAir');
+        const adminStatus = document.getElementById('adminStatus');
+        const requestList = document.getElementById('requestList');
+        const requestCount = document.getElementById('requestCount');
+
+        // Debug: Check if elements exist
+        console.log('Admin elements found:', {
+            adminModal: !!adminModal,
+            adminTrigger: !!adminTrigger,
+            closeAdmin: !!closeAdmin
+        });
+
+        if (!adminTrigger) {
+            console.error('Admin trigger not found!');
+        }
+        if (!adminModal) {
+            console.error('Admin modal not found!');
+        }
+
+        let allRequests = {};
+        let currentFilter = 'all';
+
+        // Broadcast Status
+        const broadcastStatusRef = database.ref('broadcastStatus');
+        
+        function updateBroadcastStatus(isOnAir) {
+            if (isOnAir) {
+                adminStatus.textContent = 'ON AIR';
+                adminStatus.className = 'text-2xl font-black text-green-600';
+            } else {
+                adminStatus.textContent = 'OFF AIR';
+                adminStatus.className = 'text-2xl font-black text-red-600';
+            }
+            // Update transmission indicator
+            updateTransmissionIndicator(isOnAir);
+        }
+
+        // Listen for broadcast status changes
+        broadcastStatusRef.on('value', (snapshot) => {
+            const isOnAir = snapshot.val() !== false;
+            updateBroadcastStatus(isOnAir);
+            console.log('Broadcast status updated:', isOnAir ? 'ON AIR' : 'OFF AIR');
+        });
+
+        // Filter buttons
+        document.getElementById('filterAll').addEventListener('click', () => {
+            currentFilter = 'all';
+            updateRequestList();
+            setActiveFilter('filterAll');
+        });
+
+        document.getElementById('filterPending').addEventListener('click', () => {
+            currentFilter = 'pending';
+            updateRequestList();
+            setActiveFilter('filterPending');
+        });
+
+        document.getElementById('filterApproved').addEventListener('click', () => {
+            currentFilter = 'approved';
+            updateRequestList();
+            setActiveFilter('filterApproved');
+        });
+
+        document.getElementById('filterRejected').addEventListener('click', () => {
+            currentFilter = 'rejected';
+            updateRequestList();
+            setActiveFilter('filterRejected');
+        });
+
+        function setActiveFilter(activeId) {
+            ['filterAll', 'filterPending', 'filterApproved', 'filterRejected'].forEach(id => {
+                const btn = document.getElementById(id);
+                if (id === activeId) {
+                    btn.classList.add('bg-gray-800', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'bg-yellow-100', 'bg-green-100', 'bg-red-100', 
+                                         'text-yellow-700', 'text-green-700', 'text-red-700');
+                } else {
+                    btn.classList.remove('bg-gray-800', 'text-white');
+                    if (id === 'filterPending') {
+                        btn.className = 'px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 font-bold';
+                    } else if (id === 'filterApproved') {
+                        btn.className = 'px-3 py-1 rounded-full bg-green-100 text-green-700 font-bold';
+                    } else if (id === 'filterRejected') {
+                        btn.className = 'px-3 py-1 rounded-full bg-red-100 text-red-700 font-bold';
+                    } else {
+                        btn.className = 'px-3 py-1 rounded-full bg-gray-200 font-bold';
+                    }
+                }
+            });
+        }
+
+        function updateRequestList() {
+            const filtered = Object.entries(allRequests).filter(([id, req]) => {
+                if (currentFilter === 'all') return true;
+                return req.status === currentFilter;
+            });
+
+            requestCount.textContent = Object.keys(allRequests).length;
+
+            if (filtered.length === 0) {
+                requestList.innerHTML = '<p class="text-gray-400 text-sm italic text-center py-8">No requests in this category</p>';
+                return;
+            }
+
+            requestList.innerHTML = filtered.map(([id, req]) => {
+                const statusColors = {
+                    pending: 'border-yellow-500 bg-yellow-50',
+                    approved: 'border-green-500 bg-green-50',
+                    rejected: 'border-red-500 bg-red-50'
+                };
+                const statusBadges = {
+                    pending: '<span class="text-xs bg-yellow-500 text-white px-2 py-1 rounded-full">Pending</span>',
+                    approved: '<span class="text-xs bg-green-500 text-white px-2 py-1 rounded-full">Approved</span>',
+                    rejected: '<span class="text-xs bg-red-500 text-white px-2 py-1 rounded-full">Rejected</span>'
+                };
+
+                return `
+                    <div class="p-4 rounded-xl border-l-4 ${statusColors[req.status] || 'border-gray-300 bg-gray-50'}">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <p class="font-bold text-sm">${req.song}</p>
+                                    ${statusBadges[req.status] || ''}
+                                </div>
+                                <p class="text-xs text-gray-600">by ${req.artist}</p>
+                            </div>
+                            <button onclick="deleteRequest('${id}')" class="text-red-500 hover:text-red-700 text-xs ml-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500"><strong>Requested by:</strong> ${req.name}</p>
+                        ${req.reason ? `<p class="text-xs text-gray-500 mt-1 italic">"${req.reason}"</p>` : ''}
+                        <p class="text-[10px] text-gray-400 mt-2">${new Date(req.timestamp).toLocaleString()}</p>
+                        <div class="flex gap-2 mt-3">
+                            ${req.status !== 'approved' ? `<button onclick="updateRequestStatus('${id}', 'approved')" class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>` : ''}
+                            ${req.status !== 'rejected' ? `<button onclick="updateRequestStatus('${id}', 'rejected')" class="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>` : ''}
+                            ${req.status !== 'pending' ? `<button onclick="updateRequestStatus('${id}', 'pending')" class="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Set Pending</button>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Listen for requests from Firebase
+        database.ref('requests').on('value', (snapshot) => {
+            allRequests = snapshot.val() || {};
+            updateRequestList();
+        });
+
+        window.deleteRequest = function(id) {
+            if (confirm('Are you sure you want to delete this request?')) {
+                database.ref('requests/' + id).remove();
+            }
+        };
+
+        window.updateRequestStatus = function(id, status) {
+            database.ref('requests/' + id + '/status').set(status);
+        };
+
+        if (adminTrigger && adminModal) {
+            adminTrigger.addEventListener('click', () => {
+                console.log('Admin panel trigger clicked');
+                adminModal.classList.add('active');
+            });
+        } else {
+            console.error('Cannot attach admin trigger - elements missing');
+        }
+
+        if (closeAdmin && adminModal) {
+            closeAdmin.addEventListener('click', () => {
+                adminModal.classList.remove('active');
+            });
+        }
+
+        if (adminModal) {
+            adminModal.addEventListener('click', (e) => {
+                if (e.target === adminModal) {
+                    adminModal.classList.remove('active');
+                }
+            });
+        }
+
+        if (setOnAir && broadcastStatusRef) {
+            setOnAir.addEventListener('click', () => {
+                broadcastStatusRef.set(true);
+            });
+        }
+
+        if (setOffAir && broadcastStatusRef) {
+            setOffAir.addEventListener('click', () => {
+                broadcastStatusRef.set(false);
+            });
+        }
+
+        // Initialize filter
+        setActiveFilter('filterAll');
+
+        console.log('All event listeners attached successfully');
+        
+        } // End of initializeApp function
+
+        // ===== PWA INSTALLATION =====
+        let deferredPrompt;
+        const installButton = document.getElementById('installButton');
+
+        // Listen for the beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA install prompt available');
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            // Show the install button
+            installButton.style.display = 'flex';
+        });
+
+        // Handle install button click
+        installButton.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                console.log('No install prompt available');
+                return;
+            }
+
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to install prompt: ${outcome}`);
+            
+            if (outcome === 'accepted') {
+                console.log('User accepted the install prompt');
+            } else {
+                console.log('User dismissed the install prompt');
+            }
+            
+            // Clear the deferredPrompt
+            deferredPrompt = null;
+            // Hide the install button
+            installButton.style.display = 'none';
+        });
+
+        // Hide button if already installed
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            installButton.style.display = 'none';
+        });
+
+        // Check if already running as installed app
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('Running as installed PWA');
+            installButton.style.display = 'none';
+        }
+
+        // ===== SERVICE WORKER REGISTRATION =====
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                        
+                        // Check for updates every hour
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+
+    <script>
+        // ===== MOBILE EXCLUSIVE FEATURES =====
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        console.log('Mobile device detected:', isMobile);
+
+        if (isMobile) {
+            
+            // ===== SHAKE TO SKIP SONG =====
+            let lastShake = 0;
+            let shakeThreshold = 15;
+            
+            if (window.DeviceMotionEvent) {
+                window.addEventListener('devicemotion', (event) => {
+                    const acceleration = event.accelerationIncludingGravity;
+                    const now = Date.now();
+                    
+                    if (now - lastShake > 1000) {
+                        const x = acceleration.x;
+                        const y = acceleration.y;
+                        const z = acceleration.z;
+                        
+                        const force = Math.abs(x) + Math.abs(y) + Math.abs(z);
+                        
+                        if (force > shakeThreshold) {
+                            lastShake = now;
+                            handleShake();
+                        }
+                    }
+                });
+            }
+
+            function handleShake() {
+                console.log('Device shaken!');
+                document.body.classList.add('shake-active');
+                setTimeout(() => document.body.classList.remove('shake-active'), 500);
+                
+                // Show current song info
+                const artist = vinylArtist.textContent;
+                const title = vinylTitle.textContent;
+                showSwipeIndicator(`🎵 ${title} - ${artist}`);
+                
+                // Vibrate if supported
+                if (navigator.vibrate) {
+                    navigator.vibrate([100, 50, 100]);
+                }
+            }
+
+            // ===== DOUBLE TAP TO LIKE =====
+            let lastTap = 0;
+            document.addEventListener('touchend', (event) => {
+                const now = Date.now();
+                const timeSinceLast = now - lastTap;
+                
+                if (timeSinceLast < 300 && timeSinceLast > 0) {
+                    handleDoubleTap(event);
+                }
+                lastTap = now;
+            });
+
+            function handleDoubleTap(event) {
+                console.log('Double tapped!');
+                const heart = document.createElement('div');
+                heart.className = 'double-tap-heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = event.changedTouches[0].clientX + 'px';
+                heart.style.top = event.changedTouches[0].clientY + 'px';
+                document.body.appendChild(heart);
+                
+                setTimeout(() => heart.remove(), 1000);
+                
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+
+            // ===== SWIPE GESTURES =====
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            document.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            
+            document.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+            });
+            
+            function handleSwipe() {
+                const swipeDistance = touchEndX - touchStartX;
+                
+                if (Math.abs(swipeDistance) > 100) {
+                    const artist = vinylArtist.textContent;
+                    const title = vinylTitle.textContent;
+                    
+                    if (swipeDistance > 0) {
+                        // Swipe Right - Show song info
+                        showSwipeIndicator(`🎵 ${title}`);
+                        console.log('Swiped right - Show song title');
+                    } else {
+                        // Swipe Left - Show artist info
+                        showSwipeIndicator(`🎤 ${artist}`);
+                        console.log('Swiped left - Show artist');
+                    }
+                    
+                    if (navigator.vibrate) {
+                        navigator.vibrate(30);
+                    }
+                }
+            }
+
+            function showSwipeIndicator(text) {
+                const indicator = document.getElementById('swipeIndicator');
+                indicator.textContent = text;
+                indicator.classList.add('show');
+                setTimeout(() => indicator.classList.remove('show'), 1000);
+            }
+
+            // ===== TILT TO CONTROL VOLUME =====
+            let tiltMode = false;
+            const tiltMeter = document.getElementById('tiltMeter');
+            const tiltLevel = document.getElementById('tiltLevel');
+            
+            // Removed tilt mode button - feature disabled
+
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', (event) => {
+                    if (tiltMode) {
+                        const beta = event.beta; // -180 to 180 (front-back tilt)
+                        const volume = Math.max(0, Math.min(100, ((beta + 90) / 180) * 100));
+                        
+                        tiltLevel.style.height = volume + '%';
+                        
+                        // Apply volume to audio (if playing)
+                        const audio = document.getElementById('mainAudio');
+                        if (audio) {
+                            audio.volume = volume / 100;
+                        }
+                    }
+                });
+            }
+
+            // ===== GYROSCOPE PARALLAX =====
+            if (window.DeviceOrientationEvent) {
+                window.addEventListener('deviceorientation', (event) => {
+                    const gamma = event.gamma; // -90 to 90 (left-right tilt)
+                    const beta = event.beta;   // -180 to 180 (front-back tilt)
+                    
+                    // Apply subtle parallax to vinyl record
+                    const record = document.querySelector('.vinyl-record');
+                    if (record) {
+                        const x = gamma * 0.5;
+                        const y = beta * 0.3;
+                        record.style.transform = `translate(${x}px, ${y}px) rotate(0deg)`;
+                    }
+                });
+            }
+
+            // ===== HAPTIC FEEDBACK =====
+            function hapticFeedback(pattern = [50]) {
+                if (navigator.vibrate) {
+                    navigator.vibrate(pattern);
+                }
+            }
+
+            // Add haptic to all buttons
+            document.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', () => hapticFeedback());
+            });
+
+            // ===== BATTERY SAVER MODE =====
+            let batterySaverMode = false;
+            
+            // Removed battery saver button - feature disabled
+
+            // Auto-enable on low battery
+            if (navigator.getBattery) {
+                navigator.getBattery().then((battery) => {
+                    battery.addEventListener('levelchange', () => {
+                        if (battery.level < 0.2 && !batterySaverMode) {
+                            batterySaverMode = true;
+                            document.body.classList.add('battery-saver');
+                            showSwipeIndicator('🔋 Low Battery - Saving Power');
+                        }
+                    });
+                });
+            }
+
+            // ===== FULLSCREEN MODE =====
+            const fullscreenToggle = document.getElementById('fullscreenToggle');
+            fullscreenToggle.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                    fullscreenToggle.innerHTML = '<i class="fas fa-compress"></i>';
+                } else {
+                    document.exitFullscreen();
+                    fullscreenToggle.innerHTML = '<i class="fas fa-expand"></i>';
+                }
+                hapticFeedback();
+            });
+
+            // ===== LONG PRESS ACTIONS =====
+            let pressTimer;
+            
+            document.addEventListener('touchstart', (e) => {
+                pressTimer = setTimeout(() => {
+                    handleLongPress(e);
+                }, 1000);
+            });
+            
+            document.addEventListener('touchend', () => {
+                clearTimeout(pressTimer);
+            });
+            
+            document.addEventListener('touchmove', () => {
+                clearTimeout(pressTimer);
+            });
+            
+            function handleLongPress(event) {
+                const ripple = document.createElement('div');
+                ripple.className = 'long-press-ripple';
+                ripple.style.left = (event.touches[0].clientX - 100) + 'px';
+                ripple.style.top = (event.touches[0].clientY - 100) + 'px';
+                document.body.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 1000);
+                
+                hapticFeedback([100, 50, 100, 50, 100]);
+                showSwipeIndicator('⭐ Long Press Detected');
+            }
+
+            // ===== PROXIMITY SENSOR (if available) =====
+            if ('ProximitySensor' in window) {
+                const sensor = new ProximitySensor();
+                sensor.addEventListener('reading', () => {
+                    if (sensor.near) {
+                        // Pause when phone is near face (call-like)
+                        console.log('Proximity sensor: near');
+                    }
+                });
+                sensor.start();
+            }
+
+            // ===== AMBIENT LIGHT SENSOR =====
+            if ('AmbientLightSensor' in window) {
+                const sensor = new AmbientLightSensor();
+                sensor.addEventListener('reading', () => {
+                    const lux = sensor.illuminance;
+                    if (lux < 50 && !nightLightMode) {
+                        // Auto-enable night mode in dark
+                        console.log('Dark environment detected');
+                    }
+                });
+                sensor.start();
+            }
+
+            console.log('Mobile exclusive features loaded! 📱');
+            showSwipeIndicator('📱 Mobile Features Active!');
+        }
     </script>
 </body>
 </html>
-
