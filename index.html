@@ -4110,84 +4110,186 @@ https://gist.githubusercontent.com/.../playlist.json
             const width = 800;
             const height = 800;
             
-            // Background gradient
+            // Background gradient (deep blue)
             const gradient = ctx.createLinearGradient(0, 0, 0, height);
-            gradient.addColorStop(0, '#001f3f');
-            gradient.addColorStop(1, '#0a3d62');
+            gradient.addColorStop(0, '#1a4d6d');
+            gradient.addColorStop(1, '#0d2a3f');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, width, height);
             
-            // Gold accent bars
-            ctx.fillStyle = '#c5a059';
-            ctx.fillRect(0, 0, width, 40);
-            ctx.fillRect(0, height - 40, width, 40);
+            // ===== OUTER GOLD FRAME =====
+            // Outer border (brown/dark gold)
+            ctx.fillStyle = '#5a4a2a';
+            ctx.fillRect(0, 0, width, 25);
+            ctx.fillRect(0, height - 25, width, 25);
+            ctx.fillRect(0, 0, 25, height);
+            ctx.fillRect(width - 25, 0, 25, height);
             
-            // NABS Logo/Title
+            // Inner gold border
+            ctx.strokeStyle = '#c5a059';
+            ctx.lineWidth = 4;
+            ctx.strokeRect(25, 25, width - 50, height - 50);
+            
+            // Second inner line
+            ctx.strokeStyle = '#8b7340';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(30, 30, width - 60, height - 60);
+            
+            // ===== NABS LOGO/TITLE =====
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 80px Cinzel, serif';
+            ctx.font = 'bold 70px Cinzel, serif';
             ctx.textAlign = 'center';
             ctx.fillText('NABS RADIO', width / 2, 120);
             
             ctx.fillStyle = '#c5a059';
-            ctx.font = '24px Montserrat, sans-serif';
+            ctx.font = '26px Montserrat, sans-serif';
             ctx.fillText('105.7 MHZ', width / 2, 160);
             
-            // Now Playing label
+            // ===== NOW PLAYING BOX =====
+            const nowPlayingY = 260;
+            
+            // Box with border
+            ctx.strokeStyle = '#c5a059';
+            ctx.lineWidth = 3;
+            ctx.strokeRect(width / 2 - 180, nowPlayingY - 35, 360, 50);
+            
+            // Left line
+            ctx.beginPath();
+            ctx.moveTo(120, nowPlayingY - 10);
+            ctx.lineTo(width / 2 - 190, nowPlayingY - 10);
+            ctx.stroke();
+            
+            // Right line
+            ctx.beginPath();
+            ctx.moveTo(width / 2 + 190, nowPlayingY - 10);
+            ctx.lineTo(width - 120, nowPlayingY - 10);
+            ctx.stroke();
+            
+            // NOW PLAYING text
             ctx.fillStyle = '#c5a059';
-            ctx.font = 'bold 32px Montserrat, sans-serif';
-            ctx.fillText('NOW PLAYING', width / 2, 280);
+            ctx.font = 'bold 34px Montserrat, sans-serif';
+            ctx.fillText('NOW PLAYING', width / 2, nowPlayingY);
             
-            // Vinyl record visual
+            // ===== VINYL RECORD (white label style) =====
+            const centerX = width / 2;
+            const centerY = 430;
+            const vinylRadius = 140;
+            
+            // Shadow below vinyl
+            const outerShadow = ctx.createRadialGradient(centerX, centerY + 8, vinylRadius - 20, centerX, centerY + 8, vinylRadius + 10);
+            outerShadow.addColorStop(0, 'rgba(0, 0, 0, 0)');
+            outerShadow.addColorStop(1, 'rgba(0, 0, 0, 0.4)');
+            ctx.fillStyle = outerShadow;
             ctx.beginPath();
-            ctx.arc(width / 2, 450, 150, 0, 2 * Math.PI);
-            ctx.fillStyle = '#1a1a1a';
+            ctx.arc(centerX, centerY + 8, vinylRadius + 10, 0, 2 * Math.PI);
             ctx.fill();
             
-            // Vinyl label
+            // Main vinyl disc (black with grooves)
+            const vinylGradient = ctx.createRadialGradient(centerX - 40, centerY - 40, 0, centerX, centerY, vinylRadius);
+            vinylGradient.addColorStop(0, '#3a3a3a');
+            vinylGradient.addColorStop(0.3, '#1a1a1a');
+            vinylGradient.addColorStop(0.6, '#0d0d0d');
+            vinylGradient.addColorStop(1, '#000000');
+            ctx.fillStyle = vinylGradient;
             ctx.beginPath();
-            ctx.arc(width / 2, 450, 70, 0, 2 * Math.PI);
-            ctx.fillStyle = '#fcfaf5';
+            ctx.arc(centerX, centerY, vinylRadius, 0, 2 * Math.PI);
             ctx.fill();
             
-            // Center hole
-            ctx.beginPath();
-            ctx.arc(width / 2, 450, 20, 0, 2 * Math.PI);
-            ctx.fillStyle = '#1a1a1a';
-            ctx.fill();
-            
-            // Song title (wrap text if too long)
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 48px Lora, serif';
-            ctx.textAlign = 'center';
-            const maxWidth = 700;
-            if (ctx.measureText(title).width > maxWidth) {
-                const words = title.split(' ');
-                let line = '';
-                let y = 640;
-                for (let i = 0; i < words.length; i++) {
-                    const testLine = line + words[i] + ' ';
-                    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
-                        ctx.fillText(line, width / 2, y);
-                        line = words[i] + ' ';
-                        y += 55;
-                    } else {
-                        line = testLine;
-                    }
-                }
-                ctx.fillText(line, width / 2, y);
-            } else {
-                ctx.fillText(title, width / 2, 640);
+            // Vinyl grooves (many fine lines)
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.lineWidth = 0.8;
+            for (let i = 80; i < vinylRadius; i += 1.5) {
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, i, 0, 2 * Math.PI);
+                ctx.stroke();
             }
             
-            // Artist name
-            ctx.fillStyle = '#c5a059';
-            ctx.font = '36px Montserrat, sans-serif';
-            ctx.fillText(artist, width / 2, 710);
+            // Vinyl reflection/shine
+            const highlight = ctx.createRadialGradient(centerX - 35, centerY - 35, 0, centerX - 35, centerY - 35, 90);
+            highlight.addColorStop(0, 'rgba(255, 255, 255, 0.12)');
+            highlight.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = highlight;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, vinylRadius, 0, 2 * Math.PI);
+            ctx.fill();
             
-            // Website URL at bottom
+            // White/cream label
+            ctx.fillStyle = '#e8e8e8';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 75, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Black rings on label (3 rings)
+            ctx.strokeStyle = '#1a1a1a';
+            
+            // Outer ring
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 72, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Middle ring
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 65, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Inner ring
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 58, 0, 2 * Math.PI);
+            ctx.stroke();
+            
+            // Center hole (black)
+            const holeGradient = ctx.createRadialGradient(centerX, centerY, 14, centerX, centerY, 19);
+            holeGradient.addColorStop(0, '#000000');
+            holeGradient.addColorStop(1, '#1a1a1a');
+            ctx.fillStyle = holeGradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 19, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Inner hole
+            ctx.fillStyle = '#000000';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // Tiny center dot
+            ctx.fillStyle = '#cccccc';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 2, 0, 2 * Math.PI);
+            ctx.fill();
+            
+            // ===== SONG TITLE =====
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 24px Montserrat, sans-serif';
-            ctx.fillText(websiteURL, width / 2, height - 10);
+            ctx.font = 'bold 62px Cinzel, serif';
+            ctx.textAlign = 'center';
+            const maxWidth = 680;
+            
+            // Adjust font if title is too long
+            if (ctx.measureText(title).width > maxWidth) {
+                ctx.font = 'bold 48px Cinzel, serif';
+            }
+            ctx.fillText(title, width / 2, 625);
+            
+            // ===== ARTIST NAME =====
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'italic 40px Lora, serif';
+            ctx.fillText(artist, width / 2, 685);
+            
+            // ===== BOTTOM URL BOX =====
+            const urlBoxY = height - 90;
+            
+            // Gold box
+            ctx.strokeStyle = '#c5a059';
+            ctx.lineWidth = 2.5;
+            ctx.strokeRect(160, urlBoxY, width - 320, 45);
+            
+            // Website URL
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 21px Montserrat, sans-serif';
+            ctx.fillText(websiteURL, width / 2, urlBoxY + 30);
         }
 
         if (setOnAir && broadcastStatusRef) {
