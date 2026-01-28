@@ -1076,112 +1076,7 @@
             border: 2px solid var(--nabs-gold);
         }
 
-        /* Live Listener Counter */
-        .listener-counter {
-            position: fixed;
-            top: 180px;
-            right: 20px;
-            background: rgba(0, 31, 63, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 25px;
-            z-index: 50;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            animation: pulse-glow 3s infinite;
-        }
 
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3); }
-            50% { box-shadow: 0 4px 25px rgba(197, 160, 89, 0.6); }
-        }
-
-        .listener-counter .icon {
-            color: #4ade80;
-            font-size: 18px;
-            animation: bounce-subtle 2s infinite;
-        }
-
-        @keyframes bounce-subtle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
-        }
-
-        .listener-counter .count {
-            color: white;
-            font-weight: 900;
-            font-size: 20px;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .listener-counter .label {
-            color: #c5a059;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        /* Song Reactions Floating */
-        .song-reaction {
-            position: fixed;
-            font-size: 40px;
-            pointer-events: none;
-            z-index: 9999;
-            animation: float-reaction 3s ease-out forwards;
-        }
-
-        @keyframes float-reaction {
-            0% {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            100% {
-                opacity: 0;
-                transform: translateY(-200px) scale(1.5);
-            }
-        }
-
-        /* Reaction Buttons */
-        .reaction-bar {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 31, 63, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 50px;
-            z-index: 60;
-            display: flex;
-            gap: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-
-        .reaction-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 22px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .reaction-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.2);
-        }
-
-        .reaction-btn:active {
-            transform: scale(0.9);
-        }
 
         /* Keyboard Shortcuts Helper */
         .keyboard-shortcuts {
@@ -1234,29 +1129,6 @@
         }
 
         @media (max-width: 768px) {
-            .listener-counter {
-                top: 140px;
-                right: 10px;
-                padding: 8px 12px;
-            }
-            .listener-counter .count {
-                font-size: 16px;
-            }
-            .listener-counter .label {
-                font-size: 9px;
-            }
-            .reaction-bar {
-                bottom: 80px;
-                padding: 8px 12px;
-                gap: 8px;
-                max-width: 95vw;
-            }
-            .reaction-btn {
-                width: 38px;
-                height: 38px;
-                font-size: 16px;
-                flex-shrink: 0;
-            }
             .keyboard-shortcuts {
                 display: none !important;
             }
@@ -1270,24 +1142,6 @@
     <div class="weather-indicator" id="weatherIndicator">
         <i class="fas fa-cloud weather-icon" id="weatherIcon"></i>
         <span id="weatherText">Loading weather...</span>
-    </div>
-
-    <!-- Live Listener Counter -->
-    <div class="listener-counter">
-        <i class="fas fa-users icon"></i>
-        <div>
-            <div class="count" id="liveListenerCount">0</div>
-            <div class="label">Live Now</div>
-        </div>
-    </div>
-
-    <!-- Song Reaction Bar -->
-    <div class="reaction-bar">
-        <button class="reaction-btn" data-reaction="🔥" title="Fire!">🔥</button>
-        <button class="reaction-btn" data-reaction="❤️" title="Love it!">❤️</button>
-        <button class="reaction-btn" data-reaction="😍" title="Amazing!">😍</button>
-        <button class="reaction-btn" data-reaction="🎉" title="Party!">🎉</button>
-        <button class="reaction-btn" data-reaction="👏" title="Clap!">👏</button>
     </div>
 
     <!-- Keyboard Shortcuts Helper -->
@@ -2171,11 +2025,7 @@
                     </h3>
 
                     <!-- Station Statistics -->
-                    <div class="grid grid-cols-3 gap-3 mb-4">
-                        <div class="bg-green-50 p-3 rounded-lg text-center border border-green-200">
-                            <p class="text-2xl font-black text-green-600" id="listenerCount">0</p>
-                            <p class="text-xs text-gray-600">Active Listeners</p>
-                        </div>
+                    <div class="grid grid-cols-2 gap-3 mb-4">
                         <div class="bg-blue-50 p-3 rounded-lg text-center border border-blue-200">
                             <p class="text-2xl font-black text-blue-600" id="totalPlays">0</p>
                             <p class="text-xs text-gray-600">Total Plays</p>
@@ -2761,7 +2611,6 @@
         const syncDelayValue = document.getElementById('syncDelayValue');
         
         // Stats
-        const listenerCountEl = document.getElementById('listenerCount');
         const totalPlaysEl = document.getElementById('totalPlays');
         const uptimeEl = document.getElementById('uptime');
 
@@ -2793,26 +2642,6 @@
         }
 
         registerListener();
-
-        // Count active listeners (cleanup old ones)
-        listenersRef.on('value', (snapshot) => {
-            const listeners = snapshot.val() || {};
-            const now = Date.now();
-            let activeCount = 0;
-            
-            Object.entries(listeners).forEach(([id, data]) => {
-                if (now - (data.lastSeen || 0) < 60000) { // Active in last 60 seconds
-                    activeCount++;
-                } else {
-                    // Cleanup stale listeners
-                    listenersRef.child(id).remove();
-                }
-            });
-            
-            if (listenerCountEl) {
-                listenerCountEl.textContent = activeCount;
-            }
-        });
 
         // Listen for settings
         settingsRef.on('value', (snapshot) => {
@@ -4721,72 +4550,6 @@
             if (cancelBtn) cancelBtn.classList.add('hidden');
         }
 
-        // ===== LIVE LISTENER COUNTER =====
-        let listenerCount = 0;
-        const liveListenerCountEl = document.getElementById('liveListenerCount');
-
-        // Simulate live listener count (replace with real Firebase data if available)
-        function updateListenerCount() {
-            // Random fluctuation between 5-50 listeners
-            const baseCount = 15;
-            const variation = Math.floor(Math.random() * 35);
-            listenerCount = baseCount + variation;
-            
-            // Animate counter
-            animateCounter(liveListenerCountEl, listenerCount);
-        }
-
-        function animateCounter(element, target) {
-            const current = parseInt(element.textContent) || 0;
-            const increment = target > current ? 1 : -1;
-            const duration = 1000;
-            const steps = Math.abs(target - current);
-            const stepDuration = duration / steps;
-
-            let currentNum = current;
-            const interval = setInterval(() => {
-                currentNum += increment;
-                element.textContent = currentNum;
-                
-                if (currentNum === target) {
-                    clearInterval(interval);
-                }
-            }, stepDuration);
-        }
-
-        // Update every 10 seconds
-        updateListenerCount();
-        setInterval(updateListenerCount, 10000);
-
-        // ===== SONG REACTIONS =====
-        document.querySelectorAll('.reaction-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const emoji = btn.dataset.reaction;
-                createFloatingReaction(emoji);
-                
-                // Haptic feedback
-                if (navigator.vibrate) navigator.vibrate(50);
-                
-                // Store reaction (could send to Firebase)
-                console.log('Reaction:', emoji);
-            });
-        });
-
-        function createFloatingReaction(emoji) {
-            const reaction = document.createElement('div');
-            reaction.className = 'song-reaction';
-            reaction.textContent = emoji;
-            
-            // Random horizontal position
-            const randomX = Math.random() * (window.innerWidth - 100) + 50;
-            reaction.style.left = randomX + 'px';
-            reaction.style.bottom = '100px';
-            
-            document.body.appendChild(reaction);
-            
-            setTimeout(() => reaction.remove(), 3000);
-        }
-
         // ===== KEYBOARD SHORTCUTS =====
         const keyboardShortcuts = document.getElementById('keyboardShortcuts');
         let shortcutsVisible = false;
@@ -4856,30 +4619,38 @@
             }
         });
 
-        // ===== NOW PLAYING NOTIFICATIONS =====
+        // ===== NOW PLAYING NOTIFICATIONS (Native API) =====
         let lastNotifiedSong = '';
-
-        // Check if browser supports notifications
-        if ('Notification' in window && Notification.permission === 'default') {
-            // Don't auto-request, wait for user action
-        }
+        let notificationEnabled = localStorage.getItem('nabs-notifications-enabled') === 'true';
 
         function showNowPlayingNotification(title, artist) {
-            if ('Notification' in window && Notification.permission === 'granted') {
+            if ('Notification' in window && Notification.permission === 'granted' && notificationEnabled) {
                 const songKey = `${title}-${artist}`;
                 
                 // Don't notify for same song twice in a row
                 if (songKey === lastNotifiedSong) return;
                 lastNotifiedSong = songKey;
 
-                new Notification('🎵 Now Playing on NABS', {
+                // Create notification with native API
+                const notification = new Notification('🎵 Now Playing on NABS Radio', {
                     body: `${title}\nby ${artist}`,
                     icon: 'icon-192.png',
                     badge: 'icon-192.png',
                     tag: 'now-playing',
                     renotify: false,
-                    silent: true
+                    silent: true,
+                    requireInteraction: false,
+                    vibrate: [200, 100, 200]
                 });
+
+                // Auto-close after 5 seconds
+                setTimeout(() => notification.close(), 5000);
+
+                // Click notification to focus window
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                };
             }
         }
 
@@ -4887,21 +4658,73 @@
         const notifBtn = document.createElement('button');
         notifBtn.id = 'enableNotifications';
         notifBtn.className = 'w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left';
-        notifBtn.innerHTML = '<i class="fas fa-bell mr-2"></i> Enable Now Playing Notifications';
+        
+        // Check current permission status
+        if ('Notification' in window) {
+            if (Notification.permission === 'granted' && notificationEnabled) {
+                notifBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Notifications Enabled';
+                notifBtn.style.background = 'rgba(74, 222, 128, 0.2)';
+            } else if (Notification.permission === 'granted') {
+                notifBtn.innerHTML = '<i class="fas fa-bell-slash mr-2"></i> Enable Notifications';
+            } else if (Notification.permission === 'denied') {
+                notifBtn.innerHTML = '<i class="fas fa-ban mr-2"></i> Notifications Blocked';
+                notifBtn.disabled = true;
+                notifBtn.style.opacity = '0.5';
+            } else {
+                notifBtn.innerHTML = '<i class="fas fa-bell mr-2"></i> Enable Notifications';
+            }
+        } else {
+            notifBtn.innerHTML = '<i class="fas fa-times mr-2"></i> Not Supported';
+            notifBtn.disabled = true;
+        }
+
         notifBtn.addEventListener('click', () => {
             if ('Notification' in window) {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
+                if (Notification.permission === 'granted') {
+                    // Toggle on/off
+                    notificationEnabled = !notificationEnabled;
+                    localStorage.setItem('nabs-notifications-enabled', notificationEnabled);
+                    
+                    if (notificationEnabled) {
                         notifBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Notifications Enabled';
                         notifBtn.style.background = 'rgba(74, 222, 128, 0.2)';
                         showSwipeIndicator?.('🔔 Notifications enabled!') || alert('Notifications enabled!');
+                        
+                        // Show test notification
+                        showNowPlayingNotification('Test', 'NABS Radio');
+                    } else {
+                        notifBtn.innerHTML = '<i class="fas fa-bell-slash mr-2"></i> Enable Notifications';
+                        notifBtn.style.background = 'rgba(255, 255, 255, 0.2)';
+                        showSwipeIndicator?.('🔕 Notifications disabled') || alert('Notifications disabled');
                     }
-                });
+                } else {
+                    // Request permission
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            notificationEnabled = true;
+                            localStorage.setItem('nabs-notifications-enabled', 'true');
+                            notifBtn.innerHTML = '<i class="fas fa-check mr-2"></i> Notifications Enabled';
+                            notifBtn.style.background = 'rgba(74, 222, 128, 0.2)';
+                            showSwipeIndicator?.('🔔 Notifications enabled!') || alert('Notifications enabled!');
+                            
+                            // Show welcome notification
+                            showNowPlayingNotification('Welcome!', 'NABS Radio Notifications');
+                        } else if (permission === 'denied') {
+                            notifBtn.innerHTML = '<i class="fas fa-ban mr-2"></i> Notifications Blocked';
+                            notifBtn.disabled = true;
+                            notifBtn.style.opacity = '0.5';
+                            alert('Notifications blocked. Please enable in browser settings.');
+                        }
+                    });
+                }
             }
         });
 
         // Add to quick actions
-        document.getElementById('downloadModeBtn')?.parentElement.appendChild(notifBtn);
+        const downloadModeBtn = document.getElementById('downloadModeBtn');
+        if (downloadModeBtn?.parentElement) {
+            downloadModeBtn.parentElement.appendChild(notifBtn);
+        }
 
         // Trigger notification when song changes
         if (vinylTitle && vinylArtist) {
@@ -4918,6 +4741,8 @@
         }
 
         console.log('✨ Exciting features loaded!');
+        console.log('📱 Notifications:', 'Notification' in window ? 'Supported' : 'Not supported');
+        console.log('🔔 Permission:', 'Notification' in window ? Notification.permission : 'N/A');
 
     </script>
 </body>
