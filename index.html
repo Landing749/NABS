@@ -42,7 +42,19 @@
         body {
             min-height: 100vh;
             width: 100%;
+            max-width: 100vw;
             position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Prevent any content from causing horizontal scroll */
+        * {
+            max-width: 100%;
+        }
+        
+        img, video, iframe {
+            max-width: 100%;
+            height: auto;
         }
         
         /* When panels are open, prevent scroll but maintain scrollbar space */
@@ -899,16 +911,24 @@
             justify-content: center;
             gap: 4px;
             height: 120px;
+            min-height: 120px;
+            max-height: 120px;
             padding: 20px;
             background: linear-gradient(to bottom, rgba(0,31,63,0.1), transparent);
             border-radius: 12px;
+            contain: layout style paint; /* Contain layout changes */
+            overflow: hidden;
         }
         .visualizer-bar {
             width: 8px;
+            min-width: 8px;
+            max-width: 8px;
             background: linear-gradient(to top, var(--nabs-gold), #ffd700);
             border-radius: 4px 4px 0 0;
             transition: height 0.1s ease;
             box-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+            will-change: height; /* Optimize height animations */
+            transform: translateZ(0); /* Force GPU acceleration */
         }
 
         /* Admin Panel Modal */
