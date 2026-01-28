@@ -32,6 +32,9 @@
     <script src="https://unpkg.com/firebase@7.24.0/firebase-app.js"></script>
     <script src="https://unpkg.com/firebase@7.24.0/firebase-database.js"></script>
     
+    <!-- Cloudinary -->
+    <script src="https://upload-widget.cloudinary.com/latest/sources/index.js"></script>
+    
     <style>
         * {
             box-sizing: border-box;
@@ -2072,6 +2075,38 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- Cloudinary Upload -->
+                    <div class="bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-xl mb-4 border-2 border-purple-300">
+                        <h4 class="font-bold text-sm mb-3 flex items-center gap-2">
+                            <i class="fas fa-cloud-upload-alt text-purple-600"></i>
+                            Cloudinary Bulk Upload
+                        </h4>
+                        <p class="text-xs text-gray-600 mb-3">Upload multiple songs at once. They'll be added as "NABS RADIO" and synced to Firebase.</p>
+                        
+                        <!-- Selected Files Display -->
+                        <div id="selectedFilesDisplay" class="bg-white p-3 rounded-lg mb-3 border border-purple-200 max-h-32 overflow-y-auto">
+                            <p class="text-xs text-gray-600">No files selected</p>
+                        </div>
+                        
+                        <!-- Upload Controls -->
+                        <div class="flex gap-2">
+                            <button onclick="selectFilesForUpload()" class="flex-1 bg-purple-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-purple-700">
+                                <i class="fas fa-folder-open mr-2"></i>Select Files
+                            </button>
+                            <button id="uploadBtn" onclick="startUpload()" class="flex-1 bg-green-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-green-700 disabled:bg-gray-400" disabled>
+                                <i class="fas fa-cloud-upload-alt mr-2"></i>Upload
+                            </button>
+                        </div>
+                        
+                        <!-- Progress -->
+                        <div id="uploadProgress" style="display:none;" class="mt-3">
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                                <div id="progressBar" class="bg-green-600 h-2 rounded-full" style="width:0%"></div>
+                            </div>
+                            <p id="progressText" class="text-xs text-gray-600">Uploading...</p>
+                        </div>
+                    </div>
                     
                     <!-- Import from URL Feature -->
                     <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl mb-4 border-2 border-blue-300">
@@ -2344,11 +2379,16 @@
                 return;
             }
 
-            const database = firebase.database();
+            window.database = firebase.database();
             console.log('Firebase database ready');
 
-            // Firebase References
-            const eventCountdownRef = database.ref('eventCountdown');
+            // Firebase References - make them GLOBAL
+            window.eventCountdownRef = window.database.ref('eventCountdown');
+            window.nowPlayingRef = window.database.ref('nowPlaying');
+            window.songsRef = window.database.ref('songs');
+            window.settingsRef = window.database.ref('settings');
+            window.statsRef = window.database.ref('stats');
+            window.listenersRef = window.database.ref('listeners');
 
         // DOM Elements
         const playBtn = document.getElementById('vinylPlay');
@@ -2688,12 +2728,13 @@
         const totalPlaysEl = document.getElementById('totalPlays');
         const uptimeEl = document.getElementById('uptime');
 
-        // Firebase References
-        const nowPlayingRef = database.ref('nowPlaying');
-        const songsRef = database.ref('songs');
-        const settingsRef = database.ref('settings');
-        const statsRef = database.ref('stats');
-        const listenersRef = database.ref('listeners');
+
+        // Firebase References - NOW GLOBAL (initialized above)
+        // const nowPlayingRef = database.ref('nowPlaying');
+        // const songsRef = database.ref('songs');
+        // const settingsRef = database.ref('settings');
+        // const statsRef = database.ref('stats');
+        // const listenersRef = database.ref('listeners');
 
         // Generate unique listener ID
         const listenerId = 'listener_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
@@ -2927,7 +2968,7 @@
         }
 
         // Load song library
-        songsRef.on('value', (snapshot) => {
+        window.songsRef.on('value', (snapshot) => {
             const songs = snapshot.val() || {};
             songLibrary = Object.entries(songs).map(([id, song]) => ({
                 id,
@@ -2982,6 +3023,9 @@
                         </div>
                         <div class="flex gap-2 items-center">
                             <span class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">#${index + 1}</span>
+                            <button onclick="renameSong('${safeId}', '${safeTitle}')" class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600" title="Rename">
+                                <i class="fas fa-edit"></i>
+                            </button>
                             <button onclick="deleteSong('${safeId}')" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -3074,7 +3118,7 @@
             });
             
             // Update Firebase
-            songsRef.update(updates)
+            window.songsRef.update(updates)
                 .then(() => {
                     console.log('Songs reordered successfully');
                 })
@@ -3129,7 +3173,9 @@
             }
             
             const song = songLibrary[index];
-            const url = GITHUB_RAW_BASE + encodeURIComponent(song.filename);
+            
+            // Use cloudinaryUrl if available, otherwise GitHub
+            const url = song.cloudinaryUrl || (GITHUB_RAW_BASE + encodeURIComponent(song.filename));
             
             nowPlayingRef.set({
                 songId: song.id,
@@ -3250,7 +3296,7 @@
                     addedAt: firebase.database.ServerValue.TIMESTAMP
                 };
                 
-                songsRef.push(song)
+                window.songsRef.push(song)
                     .then(() => {
                         console.log('Song added:', title);
                         newSongTitle.value = '';
@@ -3346,7 +3392,7 @@ https://gist.githubusercontent.com/.../playlist.json
                     
                     for (const song of songs) {
                         try {
-                            await songsRef.push({
+                            await window.songsRef.push({
                                 title: song.title,
                                 artist: song.artist,
                                 filename: song.filename,
@@ -3477,7 +3523,25 @@ https://gist.githubusercontent.com/.../playlist.json
 
         window.deleteSong = function(songId) {
             if (confirm('Delete this song from rotation?')) {
-                songsRef.child(songId).remove();
+                window.songsRef.child(songId).remove();
+            }
+        };
+
+        window.renameSong = function(songId, currentTitle) {
+            const newTitle = prompt('Enter new title:', currentTitle);
+            
+            if (newTitle && newTitle.trim() !== '' && newTitle !== currentTitle) {
+                window.songsRef.child(songId).update({
+                    title: newTitle.trim()
+                }).then(() => {
+                    console.log('✓ Song renamed to:', newTitle);
+                    alert('✓ Song renamed!');
+                    // Refresh the list
+                    updateSongList();
+                }).catch(err => {
+                    console.error('Error renaming song:', err);
+                    alert('✗ Error renaming song: ' + err.message);
+                });
             }
         };
 
@@ -5094,6 +5158,156 @@ https://gist.githubusercontent.com/.../playlist.json
             const cancelBtn = document.getElementById('cancelSleepTimer');
             if (badge) badge.classList.remove('active');
             if (cancelBtn) cancelBtn.classList.add('hidden');
+        }
+
+        // ===== CLOUDINARY UPLOAD =====
+        const cloudinaryConfig = {
+            cloudName: 'damr6r9op',
+            uploadPreset: 'org-resources'
+        };
+
+        let selectedFiles = [];
+
+        window.selectFilesForUpload = function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = 'audio/*';
+            
+            input.onchange = (e) => {
+                selectedFiles = Array.from(e.target.files);
+                updateSelectedFilesDisplay();
+            };
+            
+            input.click();
+        };
+
+        function updateSelectedFilesDisplay() {
+            const display = document.getElementById('selectedFilesDisplay');
+            const uploadBtn = document.getElementById('uploadBtn');
+            
+            if (selectedFiles.length === 0) {
+                display.innerHTML = '<p class="text-xs text-gray-600">No files selected</p>';
+                uploadBtn.disabled = true;
+                return;
+            }
+            
+            uploadBtn.disabled = false;
+            display.innerHTML = selectedFiles.map((file, idx) => `
+                <div class="flex items-center justify-between text-xs py-1 border-b">
+                    <span><i class="fas fa-music mr-1 text-purple-600"></i>${file.name}</span>
+                    <span class="text-gray-500">${(file.size / 1024 / 1024).toFixed(2)}MB</span>
+                </div>
+            `).join('');
+        }
+
+        window.startUpload = async function() {
+            if (selectedFiles.length === 0) {
+                alert('Please select files first');
+                return;
+            }
+            
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('uploadBtn').disabled = true;
+            
+            let completed = 0;
+            let failed = 0;
+            
+            for (let file of selectedFiles) {
+                try {
+                    await uploadSingleFile(file);
+                    completed++;
+                    const percent = Math.round((completed / selectedFiles.length) * 100);
+                    document.getElementById('progressBar').style.width = percent + '%';
+                    document.getElementById('progressText').textContent = `${completed}/${selectedFiles.length} uploaded`;
+                } catch (error) {
+                    console.error('Error uploading:', file.name, error);
+                    failed++;
+                }
+            }
+            
+            // Wait 2 seconds for Firebase to sync
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            // Force a refresh of the song list
+            console.log('Forcing song list refresh...');
+            if (songList) {
+                updateSongList();
+            }
+            
+            alert(`✓ Upload complete!\n${completed} songs added\n${failed ? failed + ' failed' : 'All successful'}\n\nList updated!`);
+            selectedFiles = [];
+            updateSelectedFilesDisplay();
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('uploadBtn').disabled = false;
+        };
+
+        async function uploadSingleFile(file) {
+            return new Promise((resolve, reject) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', cloudinaryConfig.uploadPreset);
+                
+                console.log('Starting upload for:', file.name);
+                
+                fetch(`https://api.cloudinary.com/v1_1/${cloudinaryConfig.cloudName}/auto/upload`, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log('Cloudinary response status:', response.status);
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('Cloudinary result:', result);
+                    
+                    if (result.error) {
+                        console.error('Cloudinary error:', result.error);
+                        reject(result.error);
+                        return;
+                    }
+                    
+                    // Get filename without extension
+                    const filenameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+                    // Get only first word
+                    const songTitle = filenameWithoutExt.split(/[\s_-]+/)[0];
+                    
+                    console.log('Song title:', songTitle);
+                    console.log('Cloudinary URL:', result.secure_url);
+                    
+                    // Make sure Firebase is available
+                    if (!window.songsRef) {
+                        console.error('window.songsRef not available!');
+                        reject('Firebase not initialized');
+                        return;
+                    }
+                    
+                    const songData = {
+                        title: songTitle,
+                        artist: 'NABS FEATURED',
+                        filename: result.public_id,
+                        cloudinaryUrl: result.secure_url,
+                        order: 999,
+                        addedAt: firebase.database.ServerValue.TIMESTAMP
+                    };
+                    
+                    console.log('Pushing to Firebase:', songData);
+                    
+                    window.songsRef.push(songData)
+                        .then((ref) => {
+                            console.log('✓ Firebase push successful for:', songTitle, 'ID:', ref.key);
+                            resolve();
+                        })
+                        .catch(err => {
+                            console.error('Firebase push error:', err);
+                            reject(err);
+                        });
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    reject(error);
+                });
+            });
         }
 
     </script>
