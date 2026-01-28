@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NABS | National Academic Broadcasting Station Official Portal</title>
     
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    
     <!-- PWA Meta Tags -->
     <meta name="description" content="National Academic Broadcasting Station - Intellectual Integrity on 105.7 MHZ">
     <meta name="theme-color" content="#001f3f">
@@ -1581,7 +1586,7 @@
             </div>
             
             <!-- Audio Logic -->
-            <audio id="mainAudio" src="" preload="auto" loop playsinline style="display: none; position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
+            <audio id="mainAudio" src="" preload="auto" playsinline style="display: none; position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
 
             <div class="mt-12 text-center">
                 <div class="flex items-center justify-center gap-2 mb-2">
@@ -2220,6 +2225,34 @@
     </div>
 
     <script>
+        // Simple security helpers
+        function escapeHTML(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+        
+        function sanitizeInput(input) {
+            if (!input) return '';
+            return String(input).replace(/[<>\"\'%;()&+]/g, '').trim().substring(0, 500);
+        }
+        
+        // Rate limiter
+        const rateLimits = {};
+        function checkRateLimit(key, max = 3, window = 60000) {
+            const now = Date.now();
+            if (!rateLimits[key] || now > rateLimits[key].reset) {
+                rateLimits[key] = { count: 1, reset: now + window };
+                return true;
+            }
+            if (rateLimits[key].count < max) {
+                rateLimits[key].count++;
+                return true;
+            }
+            return false;
+        }
+        
         // Wait for DOM and give Firebase time to load
         window.addEventListener('load', function() {
             // Wait 500ms to ensure Firebase scripts are fully loaded
@@ -2348,20 +2381,7 @@
         });
 
         // Sync audio events
-        audio.onplay = () => {
-            setPlayingState(true);
-            
-            // Mobile fix: Force layout stability
-            const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (isMobileDevice) {
-                // Prevent any potential reflows
-                document.documentElement.style.overflow = 'hidden';
-                requestAnimationFrame(() => {
-                    document.documentElement.style.overflow = '';
-                });
-            }
-        };
-        
+        audio.onplay = () => setPlayingState(true);
         audio.onpause = () => setPlayingState(false);
 
         // ===== TIME OF DAY THEMES =====
@@ -2772,9 +2792,14 @@
         function loadCurrentSong(nowPlaying) {
             const { title, artist, url, isPlaying, timestamp, isAd, isOpener } = nowPlaying;
             
-            console.log('Syncing to:', title, 'Type:', isOpener ? 'Opener' : isAd ? 'Ad' : 'Song');
+            // Sanitize all data from Firebase
+            const safeTitle = escapeHTML(title || 'Unknown');
+            const safeArtist = escapeHTML(artist || 'Unknown');
+            const safeUrl = String(url || '');
             
-            // Update UI
+            console.log('Syncing to:', safeTitle, 'Type:', isOpener ? 'Opener' : isAd ? 'Ad' : 'Song');
+            
+            // Update UI with sanitized data
             if (isOpener) {
                 vinylArtist.textContent = 'NABS';
                 vinylTitle.textContent = 'DAILY OPENER';
@@ -2784,9 +2809,9 @@
                 vinylTitle.textContent = 'STATION ID';
                 nowPlayingText.textContent = 'Station Identification';
             } else {
-                vinylArtist.textContent = artist;
-                vinylTitle.textContent = title.toUpperCase();
-                nowPlayingText.textContent = `Now Playing: ${title} - ${artist}`;
+                vinylArtist.textContent = safeArtist;
+                vinylTitle.textContent = safeTitle.toUpperCase();
+                nowPlayingText.textContent = `Now Playing: ${safeTitle} - ${safeArtist}`;
             }
             
             // Update admin panel
@@ -2803,14 +2828,18 @@
                 audio.load();
             }
             
+            // Check autoplay preference
+            const savedAutoplay = localStorage.getItem('nabs-autoplay');
+            const shouldAutoplay = savedAutoplay === 'true';
+            
             // Sync playback with delay
-            if (isPlaying && audio.paused) {
+            if ((isPlaying || shouldAutoplay) && audio.paused) {
                 let elapsed = (Date.now() - timestamp) / 1000;
                 // Apply sync delay
                 elapsed = Math.max(0, elapsed - syncDelay);
                 audio.currentTime = elapsed % audio.duration || 0;
                 audio.play().catch(err => console.log('Auto-play blocked'));
-            } else if (!isPlaying && !audio.paused) {
+            } else if (!isPlaying && !shouldAutoplay && !audio.paused) {
                 audio.pause();
             }
             
@@ -2854,21 +2883,29 @@
                 return;
             }
 
-            songList.innerHTML = songLibrary.map((song, index) => `
-                <div class="bg-gray-50 p-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors">
-                    <div class="flex-1">
-                        <p class="font-bold text-sm">${song.title}</p>
-                        <p class="text-xs text-gray-600">${song.artist}</p>
-                        <p class="text-xs text-gray-400 mt-1">${song.filename}</p>
+            songList.innerHTML = songLibrary.map((song, index) => {
+                // Sanitize all song data
+                const safeTitle = escapeHTML(song.title || 'Unknown');
+                const safeArtist = escapeHTML(song.artist || 'Unknown');
+                const safeFilename = escapeHTML(song.filename || '');
+                const safeId = sanitizeInput(song.id || '');
+                
+                return `
+                    <div class="bg-gray-50 p-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors">
+                        <div class="flex-1">
+                            <p class="font-bold text-sm">${safeTitle}</p>
+                            <p class="text-xs text-gray-600">${safeArtist}</p>
+                            <p class="text-xs text-gray-400 mt-1">${safeFilename}</p>
+                        </div>
+                        <div class="flex gap-2 items-center">
+                            <span class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">#${index + 1}</span>
+                            <button onclick="deleteSong('${safeId}')" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex gap-2 items-center">
-                        <span class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">#{index + 1}</span>
-                        <button onclick="deleteSong('${song.id}')" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600" title="Delete">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Check if we should play opener (7am daily)
@@ -3007,12 +3044,25 @@
         // Add new song
         if (addSongButton) {
             addSongButton.addEventListener('click', () => {
-                const title = newSongTitle.value.trim();
-                const artist = newSongArtist.value.trim();
-                const filename = newSongFilename.value.trim();
+                // Sanitize and validate all inputs
+                const title = sanitizeInput(newSongTitle.value);
+                const artist = sanitizeInput(newSongArtist.value);
+                const filename = sanitizeInput(newSongFilename.value);
                 
                 if (!title || !artist || !filename) {
                     alert('Please fill in all fields');
+                    return;
+                }
+                
+                // Additional validation
+                if (title.length < 2 || artist.length < 2) {
+                    alert('Title and artist must be at least 2 characters');
+                    return;
+                }
+                
+                // Validate filename format (should be a safe filename)
+                if (!/^[a-zA-Z0-9_\-\.]+\.(mp3|wav|ogg|m4a)$/i.test(filename)) {
+                    alert('Invalid filename format. Use only letters, numbers, underscores, hyphens, and valid audio extensions (.mp3, .wav, .ogg, .m4a)');
                     return;
                 }
                 
@@ -3047,6 +3097,14 @@
         };
 
         requestForm.submit.addEventListener('click', () => {
+            // Rate limiting - max 3 requests per minute
+            if (!checkRateLimit('song_request', 3, 60000)) {
+                requestForm.message.textContent = '⚠️ Too many requests. Please wait a minute.';
+                requestForm.message.className = 'text-center text-sm font-bold text-red-500 block';
+                setTimeout(() => requestForm.message.classList.add('hidden'), 3000);
+                return;
+            }
+            
             if (!requestForm.name.value || !requestForm.song.value || !requestForm.artist.value) {
                 requestForm.message.textContent = 'Please fill in all required fields';
                 requestForm.message.className = 'text-center text-sm font-bold text-red-500 block';
@@ -3054,13 +3112,28 @@
                 return;
             }
 
+            // Sanitize and validate all inputs
+            const sanitizedName = sanitizeInput(requestForm.name.value);
+            const sanitizedSong = sanitizeInput(requestForm.song.value);
+            const sanitizedArtist = sanitizeInput(requestForm.artist.value);
+            const sanitizedReason = sanitizeInput(requestForm.reason.value);
+            
+            // Additional validation
+            if (sanitizedName.length < 2 || sanitizedSong.length < 2 || sanitizedArtist.length < 2) {
+                requestForm.message.textContent = 'Invalid input. Please check your entries.';
+                requestForm.message.className = 'text-center text-sm font-bold text-red-500 block';
+                setTimeout(() => requestForm.message.classList.add('hidden'), 3000);
+                return;
+            }
+
             const request = {
-                name: requestForm.name.value,
-                song: requestForm.song.value,
-                artist: requestForm.artist.value,
-                reason: requestForm.reason.value,
+                name: sanitizedName,
+                song: sanitizedSong,
+                artist: sanitizedArtist,
+                reason: sanitizedReason,
                 timestamp: firebase.database.ServerValue.TIMESTAMP,
-                status: 'pending'
+                status: 'pending',
+                ip_hash: btoa(Date.now().toString()) // Simple request tracking
             };
 
             // Push to Firebase
@@ -3195,6 +3268,13 @@
             }
 
             requestList.innerHTML = filtered.map(([id, req]) => {
+                // Sanitize all user input data
+                const safeSong = escapeHTML(req.song || 'Unknown');
+                const safeArtist = escapeHTML(req.artist || 'Unknown');
+                const safeName = escapeHTML(req.name || 'Anonymous');
+                const safeReason = escapeHTML(req.reason || '');
+                const safeId = sanitizeInput(id);
+                
                 const statusColors = {
                     pending: 'border-yellow-500 bg-yellow-50',
                     approved: 'border-green-500 bg-green-50',
@@ -3211,22 +3291,22 @@
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <p class="font-bold text-sm">${req.song}</p>
+                                    <p class="font-bold text-sm">${safeSong}</p>
                                     ${statusBadges[req.status] || ''}
                                 </div>
-                                <p class="text-xs text-gray-600">by ${req.artist}</p>
+                                <p class="text-xs text-gray-600">by ${safeArtist}</p>
                             </div>
-                            <button onclick="deleteRequest('${id}')" class="text-red-500 hover:text-red-700 text-xs ml-2">
+                            <button onclick="deleteRequest('${safeId}')" class="text-red-500 hover:text-red-700 text-xs ml-2">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
-                        <p class="text-xs text-gray-500"><strong>Requested by:</strong> ${req.name}</p>
-                        ${req.reason ? `<p class="text-xs text-gray-500 mt-1 italic">"${req.reason}"</p>` : ''}
+                        <p class="text-xs text-gray-500"><strong>Requested by:</strong> ${safeName}</p>
+                        ${safeReason ? `<p class="text-xs text-gray-500 mt-1 italic">"${safeReason}"</p>` : ''}
                         <p class="text-[10px] text-gray-400 mt-2">${new Date(req.timestamp).toLocaleString()}</p>
                         <div class="flex gap-2 mt-3">
-                            ${req.status !== 'approved' ? `<button onclick="updateRequestStatus('${id}', 'approved')" class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>` : ''}
-                            ${req.status !== 'rejected' ? `<button onclick="updateRequestStatus('${id}', 'rejected')" class="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>` : ''}
-                            ${req.status !== 'pending' ? `<button onclick="updateRequestStatus('${id}', 'pending')" class="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Set Pending</button>` : ''}
+                            ${req.status !== 'approved' ? `<button onclick="updateRequestStatus('${safeId}', 'approved')" class="text-xs bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Approve</button>` : ''}
+                            ${req.status !== 'rejected' ? `<button onclick="updateRequestStatus('${safeId}', 'rejected')" class="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reject</button>` : ''}
+                            ${req.status !== 'pending' ? `<button onclick="updateRequestStatus('${safeId}', 'pending')" class="text-xs bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Set Pending</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -4269,13 +4349,6 @@
         const savedAutoplay = localStorage.getItem('nabs-autoplay');
         if (savedAutoplay === 'true') {
             enableAutoplayCheckbox.checked = true;
-            // Try to autoplay on page load
-            if (audio) {
-                audio.play().catch(err => {
-                    console.log('Autoplay blocked by browser:', err);
-                    // Browser blocked autoplay - user will need to click play manually
-                });
-            }
         }
         
         // Save autoplay preference when changed
@@ -4285,9 +4358,9 @@
                 localStorage.setItem('nabs-autoplay', autoplayEnabled.toString());
                 
                 if (autoplayEnabled) {
-                    showSwipeIndicator?.('▶️ Autoplay enabled') || alert('Autoplay enabled');
+                    showSwipeIndicator?.('▶️ Autoplay enabled - Will play on next load') || alert('Autoplay enabled');
                     // Start playing if currently stopped
-                    if (audio && audio.paused) {
+                    if (audio && audio.paused && audio.src) {
                         audio.play().catch(err => {
                             console.log('Play failed:', err);
                         });
