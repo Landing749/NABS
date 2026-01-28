@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NABS | National Academic Broadcasting Station Official Portal</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
     
     <!-- PWA Meta Tags -->
     <meta name="description" content="National Academic Broadcasting Station - Intellectual Integrity on 105.7 MHZ">
@@ -296,6 +295,280 @@
             bottom: 0;
         }
 
+        /* Sleep Timer Badge */
+        .sleep-timer-badge {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: rgba(255, 0, 0, 0.9);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 50;
+            display: none;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .sleep-timer-badge.active {
+            display: block;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Quick Settings Panel */
+        .quick-settings {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100vh;
+            background: rgba(0, 31, 63, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            transition: right 0.3s ease-out;
+            z-index: 9997;
+            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .quick-settings.active {
+            right: 0;
+        }
+
+        @media (max-width: 768px) {
+            .quick-settings {
+                width: 100%;
+                right: -100%;
+            }
+            .sleep-timer-badge {
+                top: 70px;
+                right: 10px;
+                font-size: 10px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Toggle Checkbox Styles */
+        .toggle-checkbox {
+            appearance: none;
+            width: 44px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .toggle-checkbox:checked {
+            background: var(--nabs-gold);
+        }
+
+        .toggle-checkbox::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-checkbox:checked::before {
+            left: 22px;
+        }
+
+        /* History Panel */
+        .history-panel {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            right: 0;
+            height: 60vh;
+            background: rgba(0, 31, 63, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 30px 30px 0 0;
+            transition: bottom 0.3s ease-out;
+            z-index: 9996;
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .history-panel.active {
+            bottom: 0;
+        }
+
+        .history-list {
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .history-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .favorite-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .favorite-btn.active {
+            color: #ff0000;
+            transform: scale(1.2);
+        }
+
+        /* Floating action buttons */
+        .fab-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 60;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--nabs-gold);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .fab-container {
+                bottom: 80px;
+                right: 15px;
+                gap: 10px;
+            }
+            .fab {
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+        }
+
+        /* Event Countdown Banner */
+        .event-countdown-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #c5a059, #d4a574);
+            padding: 12px 20px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .event-countdown-banner.active {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .countdown-timer {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .countdown-unit {
+            text-align: center;
+            background: rgba(0, 31, 63, 0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+            min-width: 60px;
+        }
+
+        .countdown-unit .number {
+            font-size: 24px;
+            font-weight: 900;
+            color: #001f3f;
+            display: block;
+            line-height: 1;
+        }
+
+        .countdown-unit .label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #001f3f;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .event-countdown-banner {
+                padding: 10px 15px;
+            }
+            .countdown-timer {
+                gap: 10px;
+            }
+            .countdown-unit {
+                min-width: 50px;
+                padding: 6px 8px;
+            }
+            .countdown-unit .number {
+                font-size: 18px;
+            }
+            .countdown-unit .label {
+                font-size: 8px;
+            }
+        }
+
         /* Tilt Indicator */
         .tilt-meter {
             position: fixed;
@@ -582,6 +855,7 @@
             z-index: 9999;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
         .admin-modal.active {
             display: flex;
@@ -594,6 +868,139 @@
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Mobile optimizations for admin panel */
+        @media (max-width: 768px) {
+            .admin-panel {
+                width: 95%;
+                max-height: 95vh;
+                border-radius: 12px;
+            }
+            .admin-panel > div:first-child {
+                padding: 16px !important;
+            }
+            .admin-panel > div:first-child h2 {
+                font-size: 1.5rem !important;
+            }
+            .admin-panel > div:first-child p {
+                font-size: 0.65rem !important;
+            }
+            .admin-panel > div:nth-child(2) {
+                padding: 16px !important;
+            }
+            .admin-panel .border-2 {
+                padding: 12px !important;
+            }
+            .admin-panel h3 {
+                font-size: 0.9rem !important;
+                gap: 8px !important;
+            }
+            /* Make broadcast controls stack on mobile */
+            .admin-panel .flex.items-center.justify-between {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px;
+            }
+            .admin-panel .flex.items-center.justify-between > div {
+                width: 100%;
+            }
+            .admin-panel .flex.gap-3 {
+                width: 100%;
+                gap: 8px !important;
+            }
+            .admin-panel .flex.gap-3 button {
+                flex: 1;
+                padding: 10px 12px !important;
+                font-size: 0.75rem !important;
+            }
+            /* Make grid single column on mobile */
+            .admin-panel .grid.grid-cols-2,
+            .admin-panel .grid.grid-cols-3 {
+                grid-template-columns: 1fr !important;
+            }
+            /* Adjust input sizes */
+            .admin-panel input[type="text"],
+            .admin-panel input[type="url"] {
+                font-size: 14px !important;
+            }
+            /* Make filter buttons wrap */
+            .admin-panel .flex.gap-2 {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Share Modal */
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 9998;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            padding: 20px;
+        }
+        .share-modal.active {
+            display: flex;
+        }
+        .share-panel {
+            background: white;
+            border-radius: 24px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .share-canvas {
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .social-share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: white;
+        }
+        .social-share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .twitter-btn { background: #1DA1F2; }
+        .facebook-btn { background: #4267B2; }
+        .whatsapp-btn { background: #25D366; }
+
+        /* Mobile optimizations for share modal */
+        @media (max-width: 768px) {
+            .share-panel {
+                width: 95%;
+                border-radius: 16px;
+            }
+            .share-panel > div:first-child {
+                padding: 16px !important;
+            }
+            .share-panel > div:first-child h2 {
+                font-size: 1.25rem !important;
+            }
+            .share-panel > div:nth-child(2) {
+                padding: 16px !important;
+            }
+            .social-share-btn {
+                padding: 10px 16px;
+                font-size: 0.875rem;
+            }
+            #shareText {
+                font-size: 12px !important;
+            }
         }
 
         /* Request Form */
@@ -617,9 +1024,45 @@
         <span class="text-sm uppercase tracking-wider">Install App</span>
     </button>
 
+    <!-- Event Countdown Banner -->
+    <div class="event-countdown-banner" id="eventCountdownBanner">
+        <div class="text-center mb-2">
+            <h3 class="text-[#001f3f] font-black text-sm uppercase tracking-wider" id="eventTitle">Special Broadcast</h3>
+            <p class="text-[#001f3f] text-xs opacity-70" id="eventDescription">Don't miss it!</p>
+        </div>
+        <div class="countdown-timer" id="countdownTimer">
+            <div class="countdown-unit">
+                <span class="number" id="countdownDays">0</span>
+                <span class="label">Days</span>
+            </div>
+            <div class="countdown-unit">
+                <span class="number" id="countdownHours">0</span>
+                <span class="label">Hours</span>
+            </div>
+            <div class="countdown-unit">
+                <span class="number" id="countdownMinutes">0</span>
+                <span class="label">Minutes</span>
+            </div>
+            <div class="countdown-unit">
+                <span class="number" id="countdownSeconds">0</span>
+                <span class="label">Seconds</span>
+            </div>
+        </div>
+    </div>
+
     <!-- Mobile Exclusive UI -->
     <div class="swipe-indicator" id="swipeIndicator"></div>
     <div class="screenshot-flash" id="screenshotFlash"></div>
+    
+    <!-- Sleep Timer Badge -->
+    <div class="sleep-timer-badge" id="sleepTimerBadge">
+        ⏰ <span id="sleepTimerDisplay">00:00</span>
+    </div>
+
+    <!-- Quick Settings Button -->
+    <button class="fullscreen-toggle" id="quickSettingsBtn" style="top: 120px; background: var(--nabs-gold);" title="Quick Settings">
+        <i class="fas fa-cog"></i>
+    </button>
     
     <!-- Fullscreen Toggle (Mobile Only) -->
     <button class="fullscreen-toggle" id="fullscreenToggle">
@@ -629,6 +1072,297 @@
     <!-- Tilt Meter (Mobile Only) -->
     <div class="tilt-meter" id="tiltMeter">
         <div class="tilt-level" id="tiltLevel" style="height: 50%;"></div>
+    </div>
+
+    <!-- Quick Settings Panel -->
+    <div class="quick-settings" id="quickSettings">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-white font-black text-xl">Quick Settings</h3>
+            <button id="closeQuickSettings" class="text-white hover:text-red-500 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Features Toggle -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-mobile-alt"></i> Mobile Features
+            </h4>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white font-bold">Enable Mobile Features</span>
+                    <input type="checkbox" id="enableMobileFeatures" class="toggle-checkbox">
+                </label>
+                <p class="text-white/60 text-[10px] px-2">Turn on shake, swipe, double-tap, and gyroscope features</p>
+            </div>
+        </div>
+
+        <!-- Individual Feature Toggles (shown when mobile features enabled) -->
+        <div id="featureToggles" class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4 hidden">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-sliders-h"></i> Feature Controls
+            </h4>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-hand-sparkles mr-2"></i>Shake to Show Info</span>
+                    <input type="checkbox" id="toggleShake" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-hand-pointer mr-2"></i>Swipe Gestures</span>
+                    <input type="checkbox" id="toggleSwipe" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-heart mr-2"></i>Double Tap to Like</span>
+                    <input type="checkbox" id="toggleDoubleTap" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-compass mr-2"></i>Gyroscope Parallax</span>
+                    <input type="checkbox" id="toggleGyro" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-gamepad mr-2"></i>Haptic Feedback</span>
+                    <input type="checkbox" id="toggleHaptic" class="toggle-checkbox" checked>
+                </label>
+            </div>
+        </div>
+
+        <!-- Sleep Timer -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-moon"></i> Sleep Timer
+            </h4>
+            <div class="grid grid-cols-3 gap-2 mb-3">
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="15">15m</button>
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="30">30m</button>
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="60">1h</button>
+            </div>
+            <button id="cancelSleepTimer" class="w-full px-3 py-2 bg-red-600/80 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition-all hidden">
+                <i class="fas fa-times mr-1"></i> Cancel Timer
+            </button>
+        </div>
+
+        <!-- Volume Control -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-volume-up"></i> Volume
+            </h4>
+            <input type="range" id="volumeSlider" min="0" max="100" value="70" class="w-full">
+            <p class="text-white text-xs text-center mt-2"><span id="volumeValue">70</span>%</p>
+        </div>
+
+        <!-- Audio Quality -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-signal"></i> Audio Quality
+            </h4>
+            <div class="space-y-2">
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="high" checked class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">High Quality</p>
+                        <p class="text-white/60 text-[10px]">Best sound, more data</p>
+                    </div>
+                </label>
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="medium" class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">Medium Quality</p>
+                        <p class="text-white/60 text-[10px]">Balanced</p>
+                    </div>
+                </label>
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="low" class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">Low Quality</p>
+                        <p class="text-white/60 text-[10px]">Save data</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-bolt"></i> Quick Actions
+            </h4>
+            <div class="space-y-2">
+                <button id="clearHistoryBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-trash mr-2"></i> Clear Listening History
+                </button>
+                <button id="refreshStationBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-sync mr-2"></i> Refresh Station
+                </button>
+                <button id="downloadModeBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-download mr-2"></i> Enable Offline Mode
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listening History Panel -->
+    <div class="history-panel" id="historyPanel">
+        <div class="bg-[#001f3f] text-white p-4 flex justify-between items-center">
+            <div>
+                <h3 class="font-black text-lg">Your Music</h3>
+                <p class="text-yellow-500 text-xs font-bold">History & Favorites</p>
+            </div>
+            <button id="closeHistory" class="text-white hover:text-red-500 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Tabs -->
+        <div class="flex gap-2 px-4 pt-4">
+            <button id="historyTab" class="flex-1 px-4 py-2 bg-white/20 text-white rounded-lg font-bold text-sm transition-all">
+                <i class="fas fa-history mr-2"></i>History
+            </button>
+            <button id="favoritesTab" class="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg font-bold text-sm transition-all">
+                <i class="fas fa-heart mr-2"></i>Favorites
+            </button>
+        </div>
+
+        <!-- History List -->
+        <div class="history-list" id="historyList">
+            <p class="text-white/60 text-sm text-center py-8">No history yet. Start listening!</p>
+        </div>
+
+        <!-- Favorites List -->
+        <div class="history-list hidden" id="favoritesList">
+            <p class="text-white/60 text-sm text-center py-8">No favorites yet. Heart songs to save them!</p>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button class="fab" id="favoriteFab" title="Favorite this song">
+            <i class="fas fa-heart"></i>
+        </button>
+        <button class="fab" id="historyFab" title="View history" style="background: rgba(0,31,63,0.9);">
+            <i class="fas fa-history"></i>
+        </button>
+    </div>
+    <div class="quick-settings" id="quickSettings">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-white font-black text-xl">Quick Settings</h3>
+            <button id="closeQuickSettings" class="text-white hover:text-red-500 text-2xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Features Toggle -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-mobile-alt"></i> Mobile Features
+            </h4>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white font-bold">Enable Mobile Features</span>
+                    <input type="checkbox" id="enableMobileFeatures" class="toggle-checkbox">
+                </label>
+                <p class="text-white/60 text-[10px] px-2">Turn on shake, swipe, double-tap, and gyroscope features</p>
+            </div>
+        </div>
+
+        <!-- Individual Feature Toggles (shown when mobile features enabled) -->
+        <div id="featureToggles" class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4 hidden">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-sliders-h"></i> Feature Controls
+            </h4>
+            <div class="space-y-2 text-xs">
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-hand-sparkles mr-2"></i>Shake to Show Info</span>
+                    <input type="checkbox" id="toggleShake" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-hand-pointer mr-2"></i>Swipe Gestures</span>
+                    <input type="checkbox" id="toggleSwipe" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-heart mr-2"></i>Double Tap to Like</span>
+                    <input type="checkbox" id="toggleDoubleTap" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-compass mr-2"></i>Gyroscope Parallax</span>
+                    <input type="checkbox" id="toggleGyro" class="toggle-checkbox" checked>
+                </label>
+                <label class="flex items-center justify-between p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <span class="text-white"><i class="fas fa-gamepad mr-2"></i>Haptic Feedback</span>
+                    <input type="checkbox" id="toggleHaptic" class="toggle-checkbox" checked>
+                </label>
+            </div>
+        </div>
+
+        <!-- Sleep Timer -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-moon"></i> Sleep Timer
+            </h4>
+            <div class="grid grid-cols-3 gap-2 mb-3">
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="15">15m</button>
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="30">30m</button>
+                <button class="sleep-timer-btn px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all" data-minutes="60">1h</button>
+            </div>
+            <button id="cancelSleepTimer" class="w-full px-3 py-2 bg-red-600/80 text-white rounded-lg text-xs font-bold hover:bg-red-700 transition-all hidden">
+                <i class="fas fa-times mr-1"></i> Cancel Timer
+            </button>
+        </div>
+
+        <!-- Volume Control -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-volume-up"></i> Volume
+            </h4>
+            <input type="range" id="volumeSlider" min="0" max="100" value="70" class="w-full">
+            <p class="text-white text-xs text-center mt-2"><span id="volumeValue">70</span>%</p>
+        </div>
+
+        <!-- Audio Quality -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4 mb-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-signal"></i> Audio Quality
+            </h4>
+            <div class="space-y-2">
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="high" checked class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">High Quality</p>
+                        <p class="text-white/60 text-[10px]">Best sound, more data</p>
+                    </div>
+                </label>
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="medium" class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">Medium Quality</p>
+                        <p class="text-white/60 text-[10px]">Balanced</p>
+                    </div>
+                </label>
+                <label class="flex items-center p-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-all">
+                    <input type="radio" name="audioQuality" value="low" class="mr-3">
+                    <div>
+                        <p class="text-white text-xs font-bold">Low Quality</p>
+                        <p class="text-white/60 text-[10px]">Save data</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-4">
+            <h4 class="text-yellow-500 font-bold text-sm mb-3 flex items-center gap-2">
+                <i class="fas fa-bolt"></i> Quick Actions
+            </h4>
+            <div class="space-y-2">
+                <button id="clearHistoryBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-trash mr-2"></i> Clear Listening History
+                </button>
+                <button id="refreshStationBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-sync mr-2"></i> Refresh Station
+                </button>
+                <button id="downloadModeBtn" class="w-full px-3 py-2 bg-white/20 text-white rounded-lg text-xs font-bold hover:bg-white/30 transition-all text-left">
+                    <i class="fas fa-download mr-2"></i> Enable Offline Mode
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Seasonal Overlay -->
@@ -690,13 +1424,6 @@
             <p class="text-gray-500 leading-relaxed border-l-2 border-gray-200 pl-6">
                 NABS Radio is not a commercial outlet. We are a dedicated educational platform. Our broadcasts are structured to aid concentration, providing a stable auditory environment for researchers, students, and professionals.
             </p>
-            <div class="bg-[#001f3f] text-white p-6 rounded-2xl shadow-xl flex items-center gap-6">
-                <div class="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center animate-pulse"><i class="fas fa-ban"></i></div>
-                <div>
-                    <h4 class="font-black text-xs uppercase tracking-widest text-yellow-500">Curatorial Sovereignty</h4>
-                    <p class="text-[11px] opacity-70">Listeners are strictly prohibited from requesting content. All programming is scientifically sequenced.</p>
-                </div>
-            </div>
         </div>
 
         <div class="flex flex-col items-center">
@@ -718,9 +1445,10 @@
                 <div class="flex items-center justify-center gap-2 mb-2">
                     <span id="statusIndicator" class="text-[10px] font-black uppercase tracking-widest text-gray-400">Status: Standby</span>
                 </div>
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-6 justify-center">
                     <button id="vinylPlay" class="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-[#001f3f] hover:bg-yellow-500 transition-all border border-gray-100"><i class="fas fa-play text-xl ml-1"></i></button>
                     <button id="vinylPause" class="w-16 h-16 rounded-full bg-[#001f3f] text-white shadow-xl flex items-center justify-center hover:bg-red-900 transition-all"><i class="fas fa-pause text-xl"></i></button>
+                    <button id="shareButton" class="w-16 h-16 rounded-full bg-yellow-500 text-white shadow-xl flex items-center justify-center hover:bg-yellow-600 transition-all" title="Share Current Song"><i class="fas fa-share-alt text-xl"></i></button>
                 </div>
                 <p id="nowPlayingText" class="mt-4 text-[10px] text-gray-400 font-bold uppercase tracking-widest opacity-60">Loading song...</p>
                 
@@ -1032,7 +1760,7 @@
         </div>
         <div class="pt-12 text-center">
             <p class="text-[10px] text-white/20 uppercase tracking-[0.5em] font-bold">Documented and Authorized for Digital Propagation</p>
-            <p id="adminTrigger" class="text-[10px] text-yellow-500/50 font-bold mt-2 italic cursor-pointer hover:text-yellow-500 hover:underline transition-all" title="Click to open Admin Panel">Official Information Hub of the National Academic Broadcasting Station &copy; 2026 [Admin]</p>
+            <p id="adminTrigger" class="text-[10px] text-yellow-500/50 font-bold mt-2 italic cursor-pointer hover:text-yellow-500 hover:underline transition-all" title="Click to open Admin Panel">Official Information Hub of the National Academic Broadcasting Station &copy; 2026</p>
         </div>
     </footer>
 
@@ -1191,6 +1919,144 @@
                         <p class="text-gray-400 text-sm italic text-center py-4">No songs yet. Songs will auto-cycle once added.</p>
                     </div>
                 </div>
+
+                <!-- Event Countdown Management -->
+                <div class="border-2 border-gray-200 rounded-2xl p-6">
+                    <h3 class="font-black text-lg uppercase tracking-wide mb-4 flex items-center gap-3">
+                        <i class="fas fa-calendar-star text-yellow-600"></i>
+                        Event Countdown
+                    </h3>
+                    
+                    <!-- Event Status -->
+                    <div class="bg-gray-50 p-4 rounded-xl mb-4 border-2 border-gray-300">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-xs font-bold">Countdown Banner Status:</p>
+                            <button id="toggleEventBanner" class="px-4 py-2 bg-gray-400 text-white rounded-lg font-bold text-xs transition-all">
+                                <i class="fas fa-toggle-off mr-1"></i><span id="eventBannerText">OFF</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Event Form -->
+                    <div class="bg-gray-50 p-4 rounded-xl">
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs font-bold mb-1 block">Event Title</label>
+                                <input type="text" id="eventTitleInput" placeholder="e.g., Anniversary Special Broadcast" class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm" value="Special Broadcast">
+                            </div>
+                            
+                            <div>
+                                <label class="text-xs font-bold mb-1 block">Event Description</label>
+                                <input type="text" id="eventDescInput" placeholder="e.g., Celebrating 5 years of NABS" class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm" value="Don't miss it!">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs font-bold mb-1 block">Event Date</label>
+                                    <input type="date" id="eventDateInput" class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold mb-1 block">Event Time</label>
+                                    <input type="time" id="eventTimeInput" class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs font-bold mb-1 block">Banner Color</label>
+                                    <select id="eventColorInput" class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm">
+                                        <option value="gold">Gold (Default)</option>
+                                        <option value="red">Red</option>
+                                        <option value="blue">Blue</option>
+                                        <option value="green">Green</option>
+                                        <option value="purple">Purple</option>
+                                        <option value="orange">Orange</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-xs font-bold mb-1 block">Auto-Hide After</label>
+                                    <select id="eventAutoHideInput" class="w-full px-3 py-2 border-2 border-gray-300 rounded-lg text-sm">
+                                        <option value="never">Never</option>
+                                        <option value="event">When Event Starts</option>
+                                        <option value="1hour">1 Hour After</option>
+                                        <option value="24hours">24 Hours After</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button id="saveEventBtn" class="w-full px-4 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 transition-all">
+                                <i class="fas fa-save mr-2"></i>Save Event & Update Banner
+                            </button>
+
+                            <button id="clearEventBtn" class="w-full px-4 py-2 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition-all">
+                                <i class="fas fa-trash mr-2"></i>Clear Event
+                            </button>
+                        </div>
+
+                        <!-- Preview -->
+                        <div class="mt-4 p-3 bg-white rounded-lg border-2 border-gray-200">
+                            <p class="text-xs font-bold mb-2 text-gray-600">LIVE PREVIEW:</p>
+                            <div class="text-center py-2">
+                                <p class="font-black text-sm text-[#001f3f]" id="previewTitle">Special Broadcast</p>
+                                <p class="text-xs text-[#001f3f] opacity-70" id="previewDesc">Don't miss it!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="share-modal">
+        <div class="share-panel">
+            <div class="bg-[#001f3f] text-white p-6 rounded-t-2xl flex justify-between items-center">
+                <div>
+                    <h2 class="font-black text-2xl mb-1">Share Now Playing</h2>
+                    <p class="text-yellow-500 text-xs uppercase tracking-widest font-black">Spread the Music</p>
+                </div>
+                <button id="closeShare" class="text-white hover:text-red-500 transition-colors">
+                    <i class="fas fa-times text-3xl"></i>
+                </button>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <!-- Generated Image Preview -->
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs font-bold mb-3 text-gray-700">SHAREABLE IMAGE</p>
+                    <canvas id="shareCanvas" class="share-canvas" width="800" height="800"></canvas>
+                    <button id="downloadImage" class="mt-4 w-full px-6 py-3 bg-yellow-500 text-white rounded-lg font-bold hover:bg-yellow-600 transition-all">
+                        <i class="fas fa-download mr-2"></i>Download Image
+                    </button>
+                </div>
+
+                <!-- Copy to Clipboard -->
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs font-bold mb-3 text-gray-700">COPY SHARE TEXT</p>
+                    <div class="flex gap-2">
+                        <input id="shareText" type="text" readonly class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg font-mono text-sm" value="">
+                        <button id="copyButton" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-all whitespace-nowrap">
+                            <i class="fas fa-copy mr-2"></i>Copy
+                        </button>
+                    </div>
+                    <p id="copyStatus" class="text-xs text-green-600 font-bold mt-2 opacity-0">✓ Copied to clipboard!</p>
+                </div>
+
+                <!-- Social Media Buttons -->
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <p class="text-xs font-bold mb-3 text-gray-700">SHARE ON SOCIAL MEDIA</p>
+                    <div class="flex flex-wrap gap-3">
+                        <a id="twitterShare" href="#" target="_blank" class="social-share-btn twitter-btn">
+                            <i class="fab fa-twitter"></i>Twitter
+                        </a>
+                        <a id="facebookShare" href="#" target="_blank" class="social-share-btn facebook-btn">
+                            <i class="fab fa-facebook"></i>Facebook
+                        </a>
+                        <a id="whatsappShare" href="#" target="_blank" class="social-share-btn whatsapp-btn">
+                            <i class="fab fa-whatsapp"></i>WhatsApp
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1256,6 +2122,9 @@
 
             const database = firebase.database();
             console.log('Firebase database ready');
+
+            // Firebase References
+            const eventCountdownRef = database.ref('eventCountdown');
 
         // DOM Elements
         const playBtn = document.getElementById('vinylPlay');
@@ -2213,6 +3082,8 @@
             adminTrigger.addEventListener('click', () => {
                 console.log('Admin panel trigger clicked');
                 adminModal.classList.add('active');
+                // Prevent body scroll when modal open
+                document.body.style.overflow = 'hidden';
             });
         } else {
             console.error('Cannot attach admin trigger - elements missing');
@@ -2221,6 +3092,8 @@
         if (closeAdmin && adminModal) {
             closeAdmin.addEventListener('click', () => {
                 adminModal.classList.remove('active');
+                // Restore body scroll
+                document.body.style.overflow = '';
             });
         }
 
@@ -2228,8 +3101,396 @@
             adminModal.addEventListener('click', (e) => {
                 if (e.target === adminModal) {
                     adminModal.classList.remove('active');
+                    // Restore body scroll
+                    document.body.style.overflow = '';
                 }
             });
+        }
+
+        // ===== EVENT COUNTDOWN FUNCTIONALITY =====
+        const eventCountdownBanner = document.getElementById('eventCountdownBanner');
+        const toggleEventBanner = document.getElementById('toggleEventBanner');
+        const eventBannerText = document.getElementById('eventBannerText');
+        const eventTitleInput = document.getElementById('eventTitleInput');
+        const eventDescInput = document.getElementById('eventDescInput');
+        const eventDateInput = document.getElementById('eventDateInput');
+        const eventTimeInput = document.getElementById('eventTimeInput');
+        const eventColorInput = document.getElementById('eventColorInput');
+        const eventAutoHideInput = document.getElementById('eventAutoHideInput');
+        const saveEventBtn = document.getElementById('saveEventBtn');
+        const clearEventBtn = document.getElementById('clearEventBtn');
+        
+        let countdownInterval = null;
+        const colorGradients = {
+            gold: 'linear-gradient(135deg, #c5a059, #d4a574)',
+            red: 'linear-gradient(135deg, #dc2626, #ef4444)',
+            blue: 'linear-gradient(135deg, #2563eb, #3b82f6)',
+            green: 'linear-gradient(135deg, #059669, #10b981)',
+            purple: 'linear-gradient(135deg, #7c3aed, #8b5cf6)',
+            orange: 'linear-gradient(135deg, #ea580c, #f97316)'
+        };
+
+        // Load event from Firebase
+        if (eventCountdownRef) {
+            eventCountdownRef.on('value', (snapshot) => {
+                const eventData = snapshot.val();
+                
+                if (eventData && eventData.enabled) {
+                    showEventCountdown(eventData);
+                } else {
+                    hideEventCountdown();
+                }
+            });
+        }
+
+        // Toggle event banner
+        if (toggleEventBanner && eventCountdownRef) {
+            toggleEventBanner.addEventListener('click', () => {
+                eventCountdownRef.once('value').then((snapshot) => {
+                    const currentData = snapshot.val() || {};
+                    const newState = !currentData.enabled;
+                    
+                    eventCountdownRef.update({ enabled: newState });
+                    
+                    if (newState) {
+                        toggleEventBanner.classList.remove('bg-gray-400');
+                        toggleEventBanner.classList.add('bg-green-600');
+                        toggleEventBanner.innerHTML = '<i class="fas fa-toggle-on mr-1"></i><span id="eventBannerText">ON</span>';
+                    } else {
+                        toggleEventBanner.classList.remove('bg-green-600');
+                        toggleEventBanner.classList.add('bg-gray-400');
+                        toggleEventBanner.innerHTML = '<i class="fas fa-toggle-off mr-1"></i><span id="eventBannerText">OFF</span>';
+                    }
+                });
+            });
+        }
+
+        // Save event
+        if (saveEventBtn && eventCountdownRef) {
+            saveEventBtn.addEventListener('click', () => {
+                const eventData = {
+                    enabled: true,
+                    title: eventTitleInput.value || 'Special Broadcast',
+                    description: eventDescInput.value || 'Don\'t miss it!',
+                    date: eventDateInput.value,
+                    time: eventTimeInput.value,
+                    color: eventColorInput.value || 'gold',
+                    autoHide: eventAutoHideInput.value || 'never',
+                    timestamp: Date.now()
+                };
+
+                if (!eventData.date || !eventData.time) {
+                    alert('Please set both date and time for the event!');
+                    return;
+                }
+
+                eventCountdownRef.set(eventData).then(() => {
+                    alert('Event saved successfully! ✅');
+                    
+                    // Update button state
+                    toggleEventBanner.classList.remove('bg-gray-400');
+                    toggleEventBanner.classList.add('bg-green-600');
+                    toggleEventBanner.innerHTML = '<i class="fas fa-toggle-on mr-1"></i><span>ON</span>';
+                });
+            });
+        }
+
+        // Clear event
+        if (clearEventBtn && eventCountdownRef) {
+            clearEventBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear the event countdown?')) {
+                    eventCountdownRef.set({
+                        enabled: false,
+                        title: 'Special Broadcast',
+                        description: 'Don\'t miss it!',
+                        date: '',
+                        time: '',
+                        color: 'gold',
+                        autoHide: 'never'
+                    }).then(() => {
+                        alert('Event cleared! ✅');
+                        eventTitleInput.value = 'Special Broadcast';
+                        eventDescInput.value = 'Don\'t miss it!';
+                        eventDateInput.value = '';
+                        eventTimeInput.value = '';
+                        
+                        // Update button state
+                        toggleEventBanner.classList.remove('bg-green-600');
+                        toggleEventBanner.classList.add('bg-gray-400');
+                        toggleEventBanner.innerHTML = '<i class="fas fa-toggle-off mr-1"></i><span>OFF</span>';
+                    });
+                }
+            });
+        }
+
+        // Live preview updates
+        if (eventTitleInput) {
+            eventTitleInput.addEventListener('input', () => {
+                document.getElementById('previewTitle').textContent = eventTitleInput.value || 'Special Broadcast';
+                document.getElementById('eventTitle').textContent = eventTitleInput.value || 'Special Broadcast';
+            });
+        }
+
+        if (eventDescInput) {
+            eventDescInput.addEventListener('input', () => {
+                document.getElementById('previewDesc').textContent = eventDescInput.value || 'Don\'t miss it!';
+                document.getElementById('eventDescription').textContent = eventDescInput.value || 'Don\'t miss it!';
+            });
+        }
+
+        // Show event countdown
+        function showEventCountdown(eventData) {
+            if (!eventData.date || !eventData.time) return;
+
+            const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
+            const now = new Date();
+
+            // Check auto-hide conditions
+            if (eventData.autoHide === 'event' && now > eventDateTime) {
+                hideEventCountdown();
+                return;
+            }
+            if (eventData.autoHide === '1hour' && now > new Date(eventDateTime.getTime() + 3600000)) {
+                hideEventCountdown();
+                return;
+            }
+            if (eventData.autoHide === '24hours' && now > new Date(eventDateTime.getTime() + 86400000)) {
+                hideEventCountdown();
+                return;
+            }
+
+            // Update banner content
+            document.getElementById('eventTitle').textContent = eventData.title;
+            document.getElementById('eventDescription').textContent = eventData.description;
+            
+            // Update banner color
+            eventCountdownBanner.style.background = colorGradients[eventData.color] || colorGradients.gold;
+
+            // Show banner
+            eventCountdownBanner.classList.add('active');
+
+            // Update countdown
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                updateCountdown(eventDateTime);
+            }, 1000);
+
+            updateCountdown(eventDateTime);
+        }
+
+        function hideEventCountdown() {
+            eventCountdownBanner.classList.remove('active');
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        }
+
+        function updateCountdown(targetDate) {
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff < 0) {
+                // Event has passed
+                document.getElementById('countdownDays').textContent = '0';
+                document.getElementById('countdownHours').textContent = '0';
+                document.getElementById('countdownMinutes').textContent = '0';
+                document.getElementById('countdownSeconds').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('countdownDays').textContent = days;
+            document.getElementById('countdownHours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('countdownMinutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('countdownSeconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        // ===== SHARE MODAL FUNCTIONALITY =====
+        const shareButton = document.getElementById('shareButton');
+        const shareModal = document.getElementById('shareModal');
+        const closeShare = document.getElementById('closeShare');
+        const shareCanvas = document.getElementById('shareCanvas');
+        const shareText = document.getElementById('shareText');
+        const copyButton = document.getElementById('copyButton');
+        const copyStatus = document.getElementById('copyStatus');
+        const downloadImage = document.getElementById('downloadImage');
+        const twitterShare = document.getElementById('twitterShare');
+        const facebookShare = document.getElementById('facebookShare');
+        const whatsappShare = document.getElementById('whatsappShare');
+
+        // Your website URL
+        const websiteURL = 'https://landing749.github.io/NABS/';
+
+        if (shareButton) {
+            shareButton.addEventListener('click', () => {
+                const artist = document.getElementById('vinylArtist').textContent;
+                const title = document.getElementById('vinylTitle').textContent;
+                
+                // Generate share text
+                const text = `🎵 Now Playing on NABS Radio: "${title}" by ${artist} - Listen at ${websiteURL}`;
+                shareText.value = text;
+                
+                // Generate shareable image
+                generateShareImage(title, artist);
+                
+                // Update social media links
+                const encodedText = encodeURIComponent(text);
+                const encodedURL = encodeURIComponent(websiteURL);
+                
+                twitterShare.href = `https://twitter.com/intent/tweet?text=${encodedText}`;
+                facebookShare.href = `https://www.facebook.com/sharer/sharer.php?u=${encodedURL}&quote=${encodedText}`;
+                whatsappShare.href = `https://wa.me/?text=${encodedText}`;
+                
+                shareModal.classList.add('active');
+                // Prevent body scroll when modal open
+                document.body.style.overflow = 'hidden';
+                
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+        }
+
+        if (closeShare) {
+            closeShare.addEventListener('click', () => {
+                shareModal.classList.remove('active');
+                // Restore body scroll
+                document.body.style.overflow = '';
+            });
+        }
+
+        if (shareModal) {
+            shareModal.addEventListener('click', (e) => {
+                if (e.target === shareModal) {
+                    shareModal.classList.remove('active');
+                    // Restore body scroll
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        if (copyButton) {
+            copyButton.addEventListener('click', () => {
+                shareText.select();
+                document.execCommand('copy');
+                
+                // Show success message
+                copyStatus.style.opacity = '1';
+                setTimeout(() => {
+                    copyStatus.style.opacity = '0';
+                }, 2000);
+                
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+        }
+
+        if (downloadImage) {
+            downloadImage.addEventListener('click', () => {
+                const link = document.createElement('a');
+                link.download = 'nabs-now-playing.png';
+                link.href = shareCanvas.toDataURL('image/png');
+                link.click();
+                
+                // Haptic feedback
+                if (navigator.vibrate) {
+                    navigator.vibrate([50, 50, 50]);
+                }
+            });
+        }
+
+        function generateShareImage(title, artist) {
+            const ctx = shareCanvas.getContext('2d');
+            const width = 800;
+            const height = 800;
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, height);
+            gradient.addColorStop(0, '#001f3f');
+            gradient.addColorStop(1, '#0a3d62');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Gold accent bars
+            ctx.fillStyle = '#c5a059';
+            ctx.fillRect(0, 0, width, 40);
+            ctx.fillRect(0, height - 40, width, 40);
+            
+            // NABS Logo/Title
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 80px Cinzel, serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('NABS RADIO', width / 2, 120);
+            
+            ctx.fillStyle = '#c5a059';
+            ctx.font = '24px Montserrat, sans-serif';
+            ctx.fillText('105.7 MHZ', width / 2, 160);
+            
+            // Now Playing label
+            ctx.fillStyle = '#c5a059';
+            ctx.font = 'bold 32px Montserrat, sans-serif';
+            ctx.fillText('NOW PLAYING', width / 2, 280);
+            
+            // Vinyl record visual
+            ctx.beginPath();
+            ctx.arc(width / 2, 450, 150, 0, 2 * Math.PI);
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fill();
+            
+            // Vinyl label
+            ctx.beginPath();
+            ctx.arc(width / 2, 450, 70, 0, 2 * Math.PI);
+            ctx.fillStyle = '#fcfaf5';
+            ctx.fill();
+            
+            // Center hole
+            ctx.beginPath();
+            ctx.arc(width / 2, 450, 20, 0, 2 * Math.PI);
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fill();
+            
+            // Song title (wrap text if too long)
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 48px Lora, serif';
+            ctx.textAlign = 'center';
+            const maxWidth = 700;
+            if (ctx.measureText(title).width > maxWidth) {
+                const words = title.split(' ');
+                let line = '';
+                let y = 640;
+                for (let i = 0; i < words.length; i++) {
+                    const testLine = line + words[i] + ' ';
+                    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+                        ctx.fillText(line, width / 2, y);
+                        line = words[i] + ' ';
+                        y += 55;
+                    } else {
+                        line = testLine;
+                    }
+                }
+                ctx.fillText(line, width / 2, y);
+            } else {
+                ctx.fillText(title, width / 2, 640);
+            }
+            
+            // Artist name
+            ctx.fillStyle = '#c5a059';
+            ctx.font = '36px Montserrat, sans-serif';
+            ctx.fillText(artist, width / 2, 710);
+            
+            // Website URL at bottom
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 24px Montserrat, sans-serif';
+            ctx.fillText(websiteURL, width / 2, height - 10);
         }
 
         if (setOnAir && broadcastStatusRef) {
@@ -2332,23 +3593,44 @@
             
             // ===== SHAKE TO SKIP SONG =====
             let lastShake = 0;
-            let shakeThreshold = 15;
+            let shakeThreshold = 50; // Increased from 40 to 50 to prevent pocket triggers
+            let shakeCount = 0;
+            let lastShakeTime = 0;
             
             if (window.DeviceMotionEvent) {
                 window.addEventListener('devicemotion', (event) => {
                     const acceleration = event.accelerationIncludingGravity;
                     const now = Date.now();
                     
-                    if (now - lastShake > 1000) {
+                    // Increased cooldown from 1000ms to 2500ms (2.5 seconds)
+                    if (now - lastShake > 2500) {
                         const x = acceleration.x;
                         const y = acceleration.y;
                         const z = acceleration.z;
                         
                         const force = Math.abs(x) + Math.abs(y) + Math.abs(z);
                         
+                        // Detect shake motion
                         if (force > shakeThreshold) {
-                            lastShake = now;
-                            handleShake();
+                            // Require 3 shake detections within 700ms to trigger (more deliberate)
+                            if (now - lastShakeTime < 700) {
+                                shakeCount++;
+                                
+                                if (shakeCount >= 3) {
+                                    lastShake = now;
+                                    handleShake();
+                                    shakeCount = 0;
+                                }
+                            } else {
+                                shakeCount = 1;
+                            }
+                            
+                            lastShakeTime = now;
+                        }
+                        
+                        // Reset shake count after 700ms of no shakes
+                        if (now - lastShakeTime > 700) {
+                            shakeCount = 0;
                         }
                     }
                 });
@@ -2579,9 +3861,565 @@
                 sensor.start();
             }
 
+            // ===== SLEEP TIMER =====
+            let sleepTimerInterval = null;
+            let sleepTimerEndTime = null;
+
+            document.querySelectorAll('.sleep-timer-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const minutes = parseInt(btn.dataset.minutes);
+                    startSleepTimer(minutes);
+                    if (navigator.vibrate) navigator.vibrate(50);
+                });
+            });
+
+            document.getElementById('cancelSleepTimer')?.addEventListener('click', () => {
+                cancelSleepTimer();
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+            });
+
+            function startSleepTimer(minutes) {
+                // Cancel any existing timer
+                if (sleepTimerInterval) {
+                    cancelSleepTimer();
+                }
+
+                sleepTimerEndTime = Date.now() + (minutes * 60 * 1000);
+                const badge = document.getElementById('sleepTimerBadge');
+                const cancelBtn = document.getElementById('cancelSleepTimer');
+                
+                badge.classList.add('active');
+                cancelBtn.classList.remove('hidden');
+
+                sleepTimerInterval = setInterval(() => {
+                    const remaining = sleepTimerEndTime - Date.now();
+                    
+                    if (remaining <= 0) {
+                        // Timer finished - pause audio
+                        const audio = document.getElementById('mainAudio');
+                        if (audio) {
+                            audio.pause();
+                        }
+                        cancelSleepTimer();
+                        showSwipeIndicator('😴 Sleep timer finished - Goodnight!');
+                    } else {
+                        // Update display
+                        const mins = Math.floor(remaining / 60000);
+                        const secs = Math.floor((remaining % 60000) / 1000);
+                        document.getElementById('sleepTimerDisplay').textContent = 
+                            `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    }
+                }, 1000);
+
+                showSwipeIndicator(`⏰ Sleep timer set for ${minutes} minutes`);
+            }
+
+            function cancelSleepTimer() {
+                if (sleepTimerInterval) {
+                    clearInterval(sleepTimerInterval);
+                    sleepTimerInterval = null;
+                }
+                sleepTimerEndTime = null;
+                document.getElementById('sleepTimerBadge')?.classList.remove('active');
+                document.getElementById('cancelSleepTimer')?.classList.add('hidden');
+            }
+
             console.log('Mobile exclusive features loaded! 📱');
             showSwipeIndicator('📱 Mobile Features Active!');
+
+            // ===== MOBILE FEATURES TOGGLE SYSTEM =====
+            const enableMobileFeatures = document.getElementById('enableMobileFeatures');
+            const featureToggles = document.getElementById('featureToggles');
+            
+            // Feature state tracking
+            let featuresEnabled = {
+                master: false, // Master switch - disabled by default
+                shake: true,
+                swipe: true,
+                doubleTap: true,
+                gyro: true,
+                haptic: true
+            };
+
+            // Load saved preferences
+            const savedPrefs = localStorage.getItem('nabs-mobile-features');
+            if (savedPrefs) {
+                featuresEnabled = JSON.parse(savedPrefs);
+                enableMobileFeatures.checked = featuresEnabled.master;
+                if (featuresEnabled.master) {
+                    featureToggles.classList.remove('hidden');
+                }
+            }
+
+            // Master toggle
+            enableMobileFeatures.addEventListener('change', (e) => {
+                featuresEnabled.master = e.target.checked;
+                
+                if (e.target.checked) {
+                    featureToggles.classList.remove('hidden');
+                    showSwipeIndicator('✨ Mobile features enabled!');
+                } else {
+                    featureToggles.classList.add('hidden');
+                    showSwipeIndicator('📱 Mobile features disabled');
+                }
+                
+                localStorage.setItem('nabs-mobile-features', JSON.stringify(featuresEnabled));
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+
+            // Individual feature toggles
+            document.getElementById('toggleShake')?.addEventListener('change', (e) => {
+                featuresEnabled.shake = e.target.checked;
+                localStorage.setItem('nabs-mobile-features', JSON.stringify(featuresEnabled));
+                showSwipeIndicator(e.target.checked ? '🤝 Shake enabled' : '🚫 Shake disabled');
+            });
+
+            document.getElementById('toggleSwipe')?.addEventListener('change', (e) => {
+                featuresEnabled.swipe = e.target.checked;
+                localStorage.setItem('nabs-mobile-features', JSON.stringify(featuresEnabled));
+                showSwipeIndicator(e.target.checked ? '👆 Swipe enabled' : '🚫 Swipe disabled');
+            });
+
+            document.getElementById('toggleDoubleTap')?.addEventListener('change', (e) => {
+                featuresEnabled.doubleTap = e.target.checked;
+                localStorage.setItem('nabs-mobile-features', JSON.stringify(featuresEnabled));
+                showSwipeIndicator(e.target.checked ? '❤️ Double tap enabled' : '🚫 Double tap disabled');
+            });
+
+            document.getElementById('toggleGyro')?.addEventListener('change', (e) => {
+                featuresEnabled.gyro = e.target.checked;
+                localStorage.setItem('nabs-mobile-features', JSON.stringify(featuresEnabled));
+                showSwipeIndicator(e.target.checked ? '🧭 Gyroscope enabled' : '🚫 Gyroscope disabled');
+            });
+
+            document.getElementById('toggleHaptic')?.addEventListener('change', (e) => {
+                featuresEnabled.haptic = e.target.checked;
+                localStorage.setItem('nabs-mobile-features', JSON.stringify(featuresEnabled));
+                showSwipeIndicator(e.target.checked ? '📳 Haptic enabled' : '🚫 Haptic disabled');
+            });
+
+            // Modify existing features to check if enabled
+            const originalHandleShake = handleShake;
+            handleShake = function() {
+                if (featuresEnabled.master && featuresEnabled.shake) {
+                    originalHandleShake();
+                }
+            };
+
+            const originalHandleSwipe = handleSwipe;
+            handleSwipe = function() {
+                if (featuresEnabled.master && featuresEnabled.swipe) {
+                    originalHandleSwipe();
+                }
+            };
+
+            const originalHandleDoubleTap = handleDoubleTap;
+            handleDoubleTap = function(event) {
+                if (featuresEnabled.master && featuresEnabled.doubleTap) {
+                    originalHandleDoubleTap(event);
+                }
+            };
+
+            const originalHapticFeedback = hapticFeedback;
+            hapticFeedback = function(pattern) {
+                if (featuresEnabled.master && featuresEnabled.haptic) {
+                    originalHapticFeedback(pattern);
+                }
+            };
         }
+
+        // ===== UNIVERSAL FEATURES (Work on all devices) =====
+        
+        // ===== QUICK SETTINGS PANEL =====
+        const quickSettingsBtn = document.getElementById('quickSettingsBtn');
+        const quickSettings = document.getElementById('quickSettings');
+        const closeQuickSettings = document.getElementById('closeQuickSettings');
+
+        if (quickSettingsBtn) {
+            quickSettingsBtn.addEventListener('click', () => {
+                quickSettings?.classList.add('active');
+                // Prevent body scroll when settings open
+                document.body.style.overflow = 'hidden';
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+        }
+
+        if (closeQuickSettings) {
+            closeQuickSettings.addEventListener('click', () => {
+                quickSettings?.classList.remove('active');
+                // Restore body scroll
+                document.body.style.overflow = '';
+            });
+        }
+
+        // Close when clicking outside
+        if (quickSettings) {
+            quickSettings.addEventListener('click', (e) => {
+                if (e.target === quickSettings) {
+                    quickSettings.classList.remove('active');
+                    // Restore body scroll
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // ===== VOLUME CONTROL =====
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const audio = document.getElementById('mainAudio');
+
+        if (volumeSlider && audio) {
+            // Set initial volume
+            audio.volume = 0.7;
+
+            volumeSlider.addEventListener('input', (e) => {
+                const volume = e.target.value / 100;
+                audio.volume = volume;
+                volumeValue.textContent = e.target.value;
+            });
+        }
+
+        // ===== QUICK ACTIONS =====
+        document.getElementById('clearHistoryBtn')?.addEventListener('click', () => {
+            if (confirm('Clear your listening history?')) {
+                localStorage.removeItem('nabs-history');
+                showSwipeIndicator?.('🗑️ History cleared!') || alert('History cleared!');
+                if (navigator.vibrate) navigator.vibrate(50);
+                // Refresh history display
+                listeningHistory = [];
+                updateHistoryDisplay();
+            }
+        });
+
+        document.getElementById('refreshStationBtn')?.addEventListener('click', () => {
+            location.reload();
+        });
+
+        // ===== OFFLINE MODE =====
+        let offlineMode = false;
+        document.getElementById('downloadModeBtn')?.addEventListener('click', async () => {
+            if (!offlineMode) {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        showSwipeIndicator?.('📥 Caching for offline mode...') || alert('Caching for offline mode...');
+                        offlineMode = true;
+                        document.getElementById('downloadModeBtn').innerHTML = 
+                            '<i class="fas fa-check mr-2"></i> Offline Mode Active';
+                        showSwipeIndicator?.('✅ Offline mode ready!') || alert('Offline mode ready!');
+                    } catch (err) {
+                        showSwipeIndicator?.('❌ Offline mode failed') || alert('Offline mode failed');
+                    }
+                } else {
+                    showSwipeIndicator?.('⚠️ Offline mode not supported') || alert('Offline mode not supported');
+                }
+            } else {
+                offlineMode = false;
+                document.getElementById('downloadModeBtn').innerHTML = 
+                    '<i class="fas fa-download mr-2"></i> Enable Offline Mode';
+                showSwipeIndicator?.('📡 Back online') || alert('Back online');
+            }
+        });
+
+        // ===== AUDIO QUALITY SELECTOR =====
+        document.querySelectorAll('input[name="audioQuality"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                const quality = e.target.value;
+                localStorage.setItem('nabs-audio-quality', quality);
+                showSwipeIndicator?.(`🎵 Quality: ${quality.toUpperCase()}`) || alert(`Quality: ${quality.toUpperCase()}`);
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+        });
+
+        // Load saved audio quality
+        const savedQuality = localStorage.getItem('nabs-audio-quality');
+        if (savedQuality) {
+            const qualityRadio = document.querySelector(`input[value="${savedQuality}"]`);
+            if (qualityRadio) qualityRadio.checked = true;
+        }
+
+        // ===== LISTENING HISTORY & FAVORITES =====
+        let listeningHistory = JSON.parse(localStorage.getItem('nabs-history') || '[]');
+        let favorites = JSON.parse(localStorage.getItem('nabs-favorites') || '[]');
+
+        // Track current song in history
+        function addToHistory(title, artist) {
+            const song = { title, artist, timestamp: Date.now() };
+            
+            // Remove duplicates
+            listeningHistory = listeningHistory.filter(s => 
+                !(s.title === title && s.artist === artist)
+            );
+            
+            // Add to beginning
+            listeningHistory.unshift(song);
+            
+            // Keep only last 50
+            if (listeningHistory.length > 50) {
+                listeningHistory = listeningHistory.slice(0, 50);
+            }
+            
+            localStorage.setItem('nabs-history', JSON.stringify(listeningHistory));
+            updateHistoryDisplay();
+        }
+
+        // Update history display
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('historyList');
+            
+            if (!historyList) return;
+            
+            if (listeningHistory.length === 0) {
+                historyList.innerHTML = '<p class="text-white/60 text-sm text-center py-8">No history yet. Start listening!</p>';
+                return;
+            }
+            
+            historyList.innerHTML = listeningHistory.map((song, index) => {
+                const isFavorite = favorites.some(f => f.title === song.title && f.artist === song.artist);
+                const timeAgo = getTimeAgo(song.timestamp);
+                
+                return `
+                    <div class="history-item">
+                        <div>
+                            <p class="text-white font-bold text-sm">${song.title}</p>
+                            <p class="text-white/60 text-xs">${song.artist} • ${timeAgo}</p>
+                        </div>
+                        <button class="favorite-btn ${isFavorite ? 'active' : ''}" onclick="toggleFavorite('${song.title.replace(/'/g, "\\'")}', '${song.artist.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Time ago helper
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            if (seconds < 60) return 'Just now';
+            const minutes = Math.floor(seconds / 60);
+            if (minutes < 60) return `${minutes}m ago`;
+            const hours = Math.floor(minutes / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            return `${days}d ago`;
+        }
+
+        // Toggle favorite
+        window.toggleFavorite = function(title, artist) {
+            const index = favorites.findIndex(f => f.title === title && f.artist === artist);
+            
+            if (index > -1) {
+                favorites.splice(index, 1);
+                showSwipeIndicator?.('💔 Removed from favorites') || alert('Removed from favorites');
+            } else {
+                favorites.push({ title, artist, timestamp: Date.now() });
+                showSwipeIndicator?.('❤️ Added to favorites') || alert('Added to favorites');
+                if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+            }
+            
+            localStorage.setItem('nabs-favorites', JSON.stringify(favorites));
+            updateHistoryDisplay();
+            updateFavoritesDisplay();
+        };
+
+        // History/Favorites tabs
+        const historyTab = document.getElementById('historyTab');
+        const favoritesTab = document.getElementById('favoritesTab');
+        const historyList = document.getElementById('historyList');
+        const favoritesList = document.getElementById('favoritesList');
+
+        if (historyTab) {
+            historyTab.addEventListener('click', () => {
+                historyTab.classList.remove('bg-white/10');
+                historyTab.classList.add('bg-white/20');
+                favoritesTab?.classList.remove('bg-white/20');
+                favoritesTab?.classList.add('bg-white/10');
+                historyList?.classList.remove('hidden');
+                favoritesList?.classList.add('hidden');
+            });
+        }
+
+        if (favoritesTab) {
+            favoritesTab.addEventListener('click', () => {
+                favoritesTab.classList.remove('bg-white/10');
+                favoritesTab.classList.add('bg-white/20');
+                historyTab?.classList.remove('bg-white/20');
+                historyTab?.classList.add('bg-white/10');
+                favoritesList?.classList.remove('hidden');
+                historyList?.classList.add('hidden');
+                updateFavoritesDisplay();
+            });
+        }
+
+        // Update favorites display
+        function updateFavoritesDisplay() {
+            const favList = document.getElementById('favoritesList');
+            
+            if (!favList) return;
+            
+            if (favorites.length === 0) {
+                favList.innerHTML = '<p class="text-white/60 text-sm text-center py-8">No favorites yet. Heart songs to save them!</p>';
+                return;
+            }
+            
+            // Sort by most recent first
+            const sortedFavorites = [...favorites].sort((a, b) => b.timestamp - a.timestamp);
+            
+            favList.innerHTML = sortedFavorites.map((song, index) => {
+                const timeAgo = getTimeAgo(song.timestamp);
+                
+                return `
+                    <div class="history-item">
+                        <div>
+                            <p class="text-white font-bold text-sm">${song.title}</p>
+                            <p class="text-white/60 text-xs">${song.artist} • Added ${timeAgo}</p>
+                        </div>
+                        <button class="favorite-btn active" onclick="toggleFavorite('${song.title.replace(/'/g, "\\'")}', '${song.artist.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // History panel controls
+        document.getElementById('historyFab')?.addEventListener('click', () => {
+            document.getElementById('historyPanel')?.classList.add('active');
+            // Prevent body scroll when panel open
+            document.body.style.overflow = 'hidden';
+            // Show history tab by default
+            historyTab?.classList.remove('bg-white/10');
+            historyTab?.classList.add('bg-white/20');
+            favoritesTab?.classList.remove('bg-white/20');
+            favoritesTab?.classList.add('bg-white/10');
+            historyList?.classList.remove('hidden');
+            favoritesList?.classList.add('hidden');
+            updateHistoryDisplay();
+            if (navigator.vibrate) navigator.vibrate(50);
+        });
+
+        document.getElementById('closeHistory')?.addEventListener('click', () => {
+            document.getElementById('historyPanel')?.classList.remove('active');
+            // Restore body scroll
+            document.body.style.overflow = '';
+        });
+
+        // Favorite current song - now opens favorites tab
+        document.getElementById('favoriteFab')?.addEventListener('click', () => {
+            const artist = document.getElementById('vinylArtist')?.textContent || 'Unknown Artist';
+            const title = document.getElementById('vinylTitle')?.textContent || 'Unknown Title';
+            
+            if (title !== '...' && title !== 'Loading...') {
+                window.toggleFavorite(title, artist);
+                
+                // Visual feedback
+                const btn = document.getElementById('favoriteFab');
+                if (btn) {
+                    btn.classList.add('active');
+                    setTimeout(() => btn.classList.remove('active'), 300);
+                }
+
+                // Open favorites panel after a short delay
+                setTimeout(() => {
+                    document.getElementById('historyPanel')?.classList.add('active');
+                    // Prevent body scroll when panel open
+                    document.body.style.overflow = 'hidden';
+                    // Switch to favorites tab
+                    favoritesTab?.classList.remove('bg-white/10');
+                    favoritesTab?.classList.add('bg-white/20');
+                    historyTab?.classList.remove('bg-white/20');
+                    historyTab?.classList.add('bg-white/10');
+                    favoritesList?.classList.remove('hidden');
+                    historyList?.classList.add('hidden');
+                    updateFavoritesDisplay();
+                }, 300);
+            }
+        });
+
+        // Auto-track songs as they play
+        const vinylTitle = document.getElementById('vinylTitle');
+        const vinylArtist = document.getElementById('vinylArtist');
+        
+        if (vinylTitle && vinylArtist) {
+            const observer = new MutationObserver(() => {
+                const title = vinylTitle.textContent;
+                const artist = vinylArtist.textContent;
+                
+                if (title && artist && title !== '...' && title !== 'Loading...') {
+                    addToHistory(title, artist);
+                }
+            });
+            
+            observer.observe(vinylTitle, { childList: true, characterData: true, subtree: true });
+            observer.observe(vinylArtist, { childList: true, characterData: true, subtree: true });
+        }
+
+        // ===== SLEEP TIMER =====
+        let sleepTimerInterval = null;
+        let sleepTimerEndTime = null;
+
+        document.querySelectorAll('.sleep-timer-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const minutes = parseInt(btn.dataset.minutes);
+                startSleepTimer(minutes);
+                if (navigator.vibrate) navigator.vibrate(50);
+            });
+        });
+
+        document.getElementById('cancelSleepTimer')?.addEventListener('click', () => {
+            cancelSleepTimer();
+            if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+        });
+
+        function startSleepTimer(minutes) {
+            // Cancel any existing timer
+            if (sleepTimerInterval) {
+                cancelSleepTimer();
+            }
+
+            sleepTimerEndTime = Date.now() + (minutes * 60 * 1000);
+            const badge = document.getElementById('sleepTimerBadge');
+            const cancelBtn = document.getElementById('cancelSleepTimer');
+            
+            if (badge) badge.classList.add('active');
+            if (cancelBtn) cancelBtn.classList.remove('hidden');
+
+            sleepTimerInterval = setInterval(() => {
+                const remaining = sleepTimerEndTime - Date.now();
+                
+                if (remaining <= 0) {
+                    // Timer finished - pause audio
+                    const audio = document.getElementById('mainAudio');
+                    if (audio) {
+                        audio.pause();
+                    }
+                    cancelSleepTimer();
+                    showSwipeIndicator?.('😴 Sleep timer finished - Goodnight!') || alert('Sleep timer finished!');
+                } else {
+                    // Update display
+                    const mins = Math.floor(remaining / 60000);
+                    const secs = Math.floor((remaining % 60000) / 1000);
+                    const display = document.getElementById('sleepTimerDisplay');
+                    if (display) {
+                        display.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                    }
+                }
+            }, 1000);
+
+            showSwipeIndicator?.(`⏰ Sleep timer set for ${minutes} minutes`) || alert(`Sleep timer set for ${minutes} minutes`);
+        }
+
+        function cancelSleepTimer() {
+            if (sleepTimerInterval) {
+                clearInterval(sleepTimerInterval);
+                sleepTimerInterval = null;
+            }
+            sleepTimerEndTime = null;
+            const badge = document.getElementById('sleepTimerBadge');
+            const cancelBtn = document.getElementById('cancelSleepTimer');
+            if (badge) badge.classList.remove('active');
+            if (cancelBtn) cancelBtn.classList.add('hidden');
+        }
+
     </script>
 </body>
 </html>
