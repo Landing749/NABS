@@ -1996,6 +1996,15 @@
                             </button>
                         </div>
                     </div>
+                    
+                    <!-- Skip to Next Song Button -->
+                    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-xl mt-4 border-2 border-yellow-400">
+                        <p class="text-xs font-bold mb-2 text-center">Manual Controls</p>
+                        <button id="skipToNextBtn" class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-3 rounded-lg font-bold text-sm transition-all flex items-center justify-center gap-2">
+                            <i class="fas fa-forward"></i> Skip to Next Song
+                        </button>
+                        <p class="text-xs text-gray-600 mt-2 text-center">Respects loop & shuffle settings</p>
+                    </div>
 
                     <!-- Sync Delay Setting -->
                     <div class="bg-gray-50 p-4 rounded-xl mt-4 border-2 border-gray-300">
@@ -2061,6 +2070,30 @@
                             <button id="addSongButton" class="w-full bg-green-600 text-white py-2 rounded-lg font-bold text-sm hover:bg-green-700">
                                 <i class="fas fa-plus mr-2"></i>Add Song
                             </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Import from URL Feature -->
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl mb-4 border-2 border-blue-300">
+                        <h4 class="font-bold text-sm mb-3 flex items-center gap-2">
+                            <i class="fas fa-file-import text-blue-600"></i>
+                            Bulk Import from URL
+                        </h4>
+                        <div class="space-y-3">
+                            <textarea 
+                                id="importUrlInput" 
+                                placeholder="Paste playlist URLs (one per line) or JSON array&#10;&#10;Examples:&#10;https://pastebin.com/raw/yourlist&#10;https://gist.githubusercontent.com/.../playlist.json"
+                                class="w-full px-3 py-2 border rounded-lg text-xs font-mono h-24 resize-none"
+                            ></textarea>
+                            <div class="flex gap-2">
+                                <button id="importFromUrlBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold text-xs hover:bg-blue-700">
+                                    <i class="fas fa-download mr-1"></i>Import
+                                </button>
+                                <button id="importHelpBtn" class="bg-gray-300 text-gray-700 px-3 py-2 rounded-lg text-xs hover:bg-gray-400" title="Show format help">
+                                    <i class="fas fa-question-circle"></i>
+                                </button>
+                            </div>
+                            <div id="importStatus" class="text-xs hidden"></div>
                         </div>
                     </div>
 
@@ -2763,6 +2796,50 @@
                 settingsRef.child('shuffleEnabled').set(!shuffleEnabled);
             });
         }
+        
+        // Skip to Next Song button
+        const skipToNextBtn = document.getElementById('skipToNextBtn');
+        if (skipToNextBtn) {
+            skipToNextBtn.addEventListener('click', () => {
+                nowPlayingRef.once('value', (snapshot) => {
+                    const current = snapshot.val();
+                    
+                    if (!current || songLibrary.length === 0) {
+                        alert('No songs in library to skip to');
+                        return;
+                    }
+                    
+                    // Get current index or default to 0
+                    let currentIndex = current.currentIndex || 0;
+                    let nextIndex;
+                    
+                    // Apply shuffle logic
+                    if (shuffleEnabled) {
+                        // Pick a random song (avoid current one if possible)
+                        do {
+                            nextIndex = Math.floor(Math.random() * songLibrary.length);
+                        } while (nextIndex === currentIndex && songLibrary.length > 1);
+                    } else {
+                        // Go to next song
+                        nextIndex = currentIndex + 1;
+                        
+                        // Check if we've reached the end
+                        if (nextIndex >= songLibrary.length) {
+                            if (loopEnabled) {
+                                nextIndex = 0; // Loop back to start
+                            } else {
+                                alert('Reached end of playlist. Loop is disabled.');
+                                return;
+                            }
+                        }
+                    }
+                    
+                    // Play the next song
+                    playNextInCycle(nextIndex);
+                    console.log('Manually skipped to next song');
+                });
+            });
+        }
 
         if (syncDelaySlider) {
             syncDelaySlider.addEventListener('input', (e) => {
@@ -2891,11 +2968,17 @@
                 const safeId = sanitizeInput(song.id || '');
                 
                 return `
-                    <div class="bg-gray-50 p-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors">
-                        <div class="flex-1">
-                            <p class="font-bold text-sm">${safeTitle}</p>
-                            <p class="text-xs text-gray-600">${safeArtist}</p>
-                            <p class="text-xs text-gray-400 mt-1">${safeFilename}</p>
+                    <div class="song-item bg-gray-50 p-3 rounded-lg flex items-center justify-between hover:bg-gray-100 transition-colors cursor-move" 
+                         draggable="true" 
+                         data-song-id="${safeId}" 
+                         data-index="${index}">
+                        <div class="flex items-center gap-3 flex-1">
+                            <i class="fas fa-grip-vertical text-gray-400"></i>
+                            <div class="flex-1">
+                                <p class="font-bold text-sm">${safeTitle}</p>
+                                <p class="text-xs text-gray-600">${safeArtist}</p>
+                                <p class="text-xs text-gray-400 mt-1">${safeFilename}</p>
+                            </div>
                         </div>
                         <div class="flex gap-2 items-center">
                             <span class="text-xs text-gray-500 px-2 py-1 bg-gray-200 rounded">#${index + 1}</span>
@@ -2906,6 +2989,99 @@
                     </div>
                 `;
             }).join('');
+            
+            // Add drag and drop event listeners
+            initDragAndDrop();
+        }
+        
+        // Drag and Drop functionality
+        let draggedElement = null;
+        
+        function initDragAndDrop() {
+            const songItems = document.querySelectorAll('.song-item');
+            
+            songItems.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('drop', handleDrop);
+                item.addEventListener('dragend', handleDragEnd);
+                item.addEventListener('dragenter', handleDragEnter);
+                item.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+        
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.style.opacity = '0.4';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+        
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+        
+        function handleDragEnter(e) {
+            if (this !== draggedElement) {
+                this.classList.add('bg-blue-100', 'border-2', 'border-blue-400');
+            }
+        }
+        
+        function handleDragLeave(e) {
+            this.classList.remove('bg-blue-100', 'border-2', 'border-blue-400');
+        }
+        
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+            
+            if (draggedElement !== this) {
+                const draggedIndex = parseInt(draggedElement.dataset.index);
+                const targetIndex = parseInt(this.dataset.index);
+                
+                // Reorder in Firebase
+                reorderSongs(draggedIndex, targetIndex);
+            }
+            
+            this.classList.remove('bg-blue-100', 'border-2', 'border-blue-400');
+            return false;
+        }
+        
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            
+            // Remove all drag styling
+            document.querySelectorAll('.song-item').forEach(item => {
+                item.classList.remove('bg-blue-100', 'border-2', 'border-blue-400');
+            });
+        }
+        
+        function reorderSongs(fromIndex, toIndex) {
+            // Create new ordered array
+            const reordered = [...songLibrary];
+            const [movedSong] = reordered.splice(fromIndex, 1);
+            reordered.splice(toIndex, 0, movedSong);
+            
+            // Update order property for all songs
+            const updates = {};
+            reordered.forEach((song, index) => {
+                updates[song.id + '/order'] = index;
+            });
+            
+            // Update Firebase
+            songsRef.update(updates)
+                .then(() => {
+                    console.log('Songs reordered successfully');
+                })
+                .catch(error => {
+                    console.error('Error reordering songs:', error);
+                    alert('Failed to reorder songs. Please try again.');
+                });
         }
 
         // Check if we should play opener (7am daily)
@@ -3089,6 +3265,215 @@
                     });
             });
         }
+        
+        // ===== IMPORT FROM URL FEATURE =====
+        const importUrlInput = document.getElementById('importUrlInput');
+        const importFromUrlBtn = document.getElementById('importFromUrlBtn');
+        const importHelpBtn = document.getElementById('importHelpBtn');
+        const importStatus = document.getElementById('importStatus');
+        
+        if (importHelpBtn) {
+            importHelpBtn.addEventListener('click', () => {
+                alert(`📋 IMPORT FORMAT HELP
+
+Accepted Formats:
+
+1️⃣ JSON Array:
+[
+  {"title":"Song Name","artist":"Artist","filename":"song.mp3"},
+  {"title":"Song 2","artist":"Artist 2","filename":"song2.mp3"}
+]
+
+2️⃣ Simple Text (one per line):
+Song Name | Artist | filename.mp3
+Song 2 | Artist 2 | song2.mp3
+
+3️⃣ CSV Format:
+title,artist,filename
+"Song Name","Artist","song.mp3"
+"Song 2","Artist 2","song2.mp3"
+
+4️⃣ URL to any of above formats:
+https://pastebin.com/raw/yourlist
+https://gist.githubusercontent.com/.../playlist.json
+
+📝 Notes:
+- All filenames must be valid audio files (.mp3, .wav, .ogg, .m4a)
+- Files should exist in your GitHub repo
+- Invalid entries will be skipped with a warning`);
+            });
+        }
+        
+        if (importFromUrlBtn) {
+            importFromUrlBtn.addEventListener('click', async () => {
+                const input = importUrlInput.value.trim();
+                
+                if (!input) {
+                    showImportStatus('Please paste URL or data', 'error');
+                    return;
+                }
+                
+                importFromUrlBtn.disabled = true;
+                importFromUrlBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Importing...';
+                showImportStatus('Processing...', 'info');
+                
+                try {
+                    let data;
+                    
+                    // Check if input is a URL
+                    if (input.startsWith('http://') || input.startsWith('https://')) {
+                        showImportStatus('Fetching from URL...', 'info');
+                        const response = await fetch(input);
+                        if (!response.ok) throw new Error('Failed to fetch URL');
+                        const text = await response.text();
+                        data = text;
+                    } else {
+                        data = input;
+                    }
+                    
+                    // Parse the data
+                    const songs = parseImportData(data);
+                    
+                    if (songs.length === 0) {
+                        throw new Error('No valid songs found in the data');
+                    }
+                    
+                    showImportStatus(`Found ${songs.length} songs. Adding to library...`, 'info');
+                    
+                    // Add songs to Firebase
+                    let added = 0;
+                    let failed = 0;
+                    
+                    for (const song of songs) {
+                        try {
+                            await songsRef.push({
+                                title: song.title,
+                                artist: song.artist,
+                                filename: song.filename,
+                                order: songLibrary.length + added,
+                                addedAt: firebase.database.ServerValue.TIMESTAMP
+                            });
+                            added++;
+                        } catch (error) {
+                            console.error('Failed to add song:', song, error);
+                            failed++;
+                        }
+                    }
+                    
+                    showImportStatus(`✅ Import complete! Added: ${added}, Failed: ${failed}`, 'success');
+                    importUrlInput.value = '';
+                    
+                    setTimeout(() => {
+                        importStatus.classList.add('hidden');
+                    }, 5000);
+                    
+                } catch (error) {
+                    console.error('Import error:', error);
+                    showImportStatus(`❌ Error: ${error.message}`, 'error');
+                } finally {
+                    importFromUrlBtn.disabled = false;
+                    importFromUrlBtn.innerHTML = '<i class="fas fa-download mr-1"></i>Import';
+                }
+            });
+        }
+        
+        function parseImportData(data) {
+            const songs = [];
+            
+            // Try JSON first
+            try {
+                const parsed = JSON.parse(data);
+                if (Array.isArray(parsed)) {
+                    parsed.forEach(item => {
+                        if (item.title && item.artist && item.filename) {
+                            if (validateSongData(item)) {
+                                songs.push(item);
+                            }
+                        }
+                    });
+                    if (songs.length > 0) return songs;
+                }
+            } catch (e) {
+                // Not JSON, continue to other formats
+            }
+            
+            // Try line-by-line formats
+            const lines = data.split('\n').filter(line => line.trim());
+            
+            for (const line of lines) {
+                // Skip headers
+                if (line.toLowerCase().includes('title') && line.toLowerCase().includes('artist')) continue;
+                
+                let title, artist, filename;
+                
+                // Try pipe-separated: Title | Artist | filename
+                if (line.includes('|')) {
+                    const parts = line.split('|').map(p => p.trim());
+                    if (parts.length >= 3) {
+                        [title, artist, filename] = parts;
+                    }
+                }
+                // Try CSV: "Title","Artist","filename"
+                else if (line.includes(',')) {
+                    const parts = line.split(',').map(p => p.trim().replace(/^["']|["']$/g, ''));
+                    if (parts.length >= 3) {
+                        [title, artist, filename] = parts;
+                    }
+                }
+                // Try tab-separated
+                else if (line.includes('\t')) {
+                    const parts = line.split('\t').map(p => p.trim());
+                    if (parts.length >= 3) {
+                        [title, artist, filename] = parts;
+                    }
+                }
+                
+                if (title && artist && filename) {
+                    const song = { title, artist, filename };
+                    if (validateSongData(song)) {
+                        songs.push(song);
+                    }
+                }
+            }
+            
+            return songs;
+        }
+        
+        function validateSongData(song) {
+            // Sanitize inputs
+            song.title = sanitizeInput(song.title);
+            song.artist = sanitizeInput(song.artist);
+            song.filename = sanitizeInput(song.filename);
+            
+            // Validate
+            if (!song.title || song.title.length < 2) return false;
+            if (!song.artist || song.artist.length < 2) return false;
+            if (!song.filename) return false;
+            
+            // Validate filename format
+            if (!/^[a-zA-Z0-9_\-\.]+\.(mp3|wav|ogg|m4a)$/i.test(song.filename)) {
+                console.warn('Invalid filename:', song.filename);
+                return false;
+            }
+            
+            return true;
+        }
+        
+        function showImportStatus(message, type) {
+            importStatus.classList.remove('hidden');
+            importStatus.className = 'text-xs mt-2 p-2 rounded';
+            
+            if (type === 'success') {
+                importStatus.className += ' bg-green-100 text-green-800 border border-green-300';
+            } else if (type === 'error') {
+                importStatus.className += ' bg-red-100 text-red-800 border border-red-300';
+            } else {
+                importStatus.className += ' bg-blue-100 text-blue-800 border border-blue-300';
+            }
+            
+            importStatus.textContent = message;
+        }
+        // ===== END IMPORT FROM URL =====
 
         window.deleteSong = function(songId) {
             if (confirm('Delete this song from rotation?')) {
