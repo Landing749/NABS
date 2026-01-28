@@ -715,6 +715,34 @@
             .mobile-fab {
                 display: flex;
             }
+            
+            /* Force stable layout on mobile */
+            html, body {
+                position: relative;
+                overflow-x: hidden;
+                width: 100%;
+                max-width: 100vw;
+            }
+            
+            /* Prevent iOS zoom on input focus */
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+            
+            /* Prevent address bar changes from causing layout shift */
+            body {
+                min-height: 100vh;
+                min-height: -webkit-fill-available;
+            }
+            
+            html {
+                height: -webkit-fill-available;
+            }
+            
+            /* Force contain layout on all sections */
+            section, main, header, footer {
+                contain: layout style;
+            }
         }
 
         .mobile-fab:active {
@@ -902,6 +930,21 @@
         }
         .is-playing .vinyl-record {
             animation-play-state: running;
+        }
+        
+        /* Prevent layout shifts when audio plays on mobile */
+        @media (max-width: 768px) {
+            body.is-playing {
+                /* Lock layout when playing */
+                contain: layout;
+            }
+            
+            /* Ensure all animations use GPU */
+            .wave, .vinyl-record, .visualizer-bar {
+                transform: translateZ(0);
+                backface-visibility: hidden;
+                perspective: 1000px;
+            }
         }
 
         /* Audio Visualizer */
@@ -1548,7 +1591,7 @@
             </div>
             
             <!-- Audio Logic -->
-            <audio id="mainAudio" src="" preload="auto" loop></audio>
+            <audio id="mainAudio" src="" preload="auto" loop playsinline style="display: none; position: absolute; width: 0; height: 0; opacity: 0; pointer-events: none;"></audio>
 
             <div class="mt-12 text-center">
                 <div class="flex items-center justify-center gap-2 mb-2">
@@ -2315,7 +2358,20 @@
         });
 
         // Sync audio events
-        audio.onplay = () => setPlayingState(true);
+        audio.onplay = () => {
+            setPlayingState(true);
+            
+            // Mobile fix: Force layout stability
+            const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (isMobileDevice) {
+                // Prevent any potential reflows
+                document.documentElement.style.overflow = 'hidden';
+                requestAnimationFrame(() => {
+                    document.documentElement.style.overflow = '';
+                });
+            }
+        };
+        
         audio.onpause = () => setPlayingState(false);
 
         // ===== TIME OF DAY THEMES =====
